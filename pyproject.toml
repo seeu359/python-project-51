@@ -3,13 +3,21 @@ name = "hexlet-code"
 version = "0.1.0"
 description = ""
 authors = ["seeu359 <a.ch3re359@yandex.ru>"]
+packages = [
+  { include = "page_loader" },
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
-flake8 = "^5.0.4"
+requests = "^2.28.1"
 
 [tool.poetry.dev-dependencies]
+flake8 = "^5.0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+page-loader = "page_loader.scripts.page_loader_script:main"
