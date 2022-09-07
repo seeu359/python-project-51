@@ -1,34 +1,77 @@
+import furl
 import requests
 import os
 import re
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
+FORMAT_FILE = '.html'
+FOLDER_SUFFIX = '_files'
 
 
-FORMAT = '.html'
-
-
-def get_format_path(path, save_path):
-    template = re.findall(r'(http://|https://)[\da-zA-Z-.]+\.[a-zA-Z]'
-                          r'+/[\w/-]+\.\w+', path)
-    if len(template) != 0:
-        not_format_path = os.path.splitext(''.join(template))[0]
-        delete_scheme = re.sub(r'https://|http://', '', not_format_path)
-        replace_dash = re.sub(r'[^a-zA-Z\d]', '-', delete_scheme)
-        path_to_save = os.path.join(save_path, replace_dash)
-        return path_to_save + FORMAT
+def make_picture_link(page_link, picture_link):
+    picture_link_pars = urlparse(picture_link)
+    if picture_link_pars.scheme:
+        return picture_link
     else:
-        not_format_path = path[0:-1] if path.endswith('/') else path
-        delete_scheme = re.sub(r'https://|http://', '', not_format_path)
-        replace_dash = re.sub(r'[^a-zA-Z\d]', '-', delete_scheme)
-        path_to_save = os.path.join(save_path, replace_dash)
-        return path_to_save + FORMAT
+        build_link = furl.furl(page_link).add(path=picture_link)
+        return str(build_link)
+
+
+def get_format_link(link):
+    parse_link = urlparse(link)
+    link_without_scheme = ''.join(parse_link[1:])
+    template = re.findall(r'[\da-zA-Z-.]+\.[a-zAZ]+/[@\w/-]+\.\w+',
+                          link_without_scheme)
+    not_format_link = link_without_scheme[0:-1] if link.endswith('/') else \
+        link_without_scheme
+
+    if len(template) == 0:
+        format_link = re.sub(r'[^a-zA-Z\d]', '-', not_format_link)
+        return format_link
+
+    else:
+        check_extension = os.path.splitext(not_format_link)
+        format_link = re.sub(r'[^a-zA-Z\d]', '-', check_extension[0])
+        return format_link
 
 
 def get_link_data(link):
     return requests.get(link).text
 
 
+def make_dir(link, save_path):
+    path_to_folder = os.path.join(save_path, link) + FOLDER_SUFFIX
+    if os.path.exists(path_to_folder):
+        return path_to_folder
+    os.mkdir(path_to_folder)
+    return path_to_folder
+
+
+def download_pictures(webpage_path, download_folder, link):
+    with open(webpage_path) as file:
+        html_file = file.read()
+    handler = BeautifulSoup(html_file, 'html.parser')
+    find_img = handler.find_all('img')
+    for img in find_img:
+        pic_link = img['src']
+        _, extension = os.path.splitext(pic_link)
+        if extension == '.png' or extension == '.jpg':
+            constructed_link = make_picture_link(link, pic_link)
+            request = requests.get(constructed_link, stream=True)
+            path_to_save = os.path.join(download_folder,
+                                        get_format_link(
+                                            constructed_link)) + extension
+            with open(path_to_save, 'wb') as picture:
+                for chunk in request.iter_content(chunk_size=1000):
+                    picture.write(chunk)
+
+
 def download(link, save_path=os.getcwd()):
-    path_to_save = get_format_path(link, save_path)
-    with open(path_to_save, 'w') as html_file:
+    converted_link = get_format_link(link)
+    path_to_file = os.path.join(save_path, converted_link) + FORMAT_FILE
+    with open(path_to_file, 'w') as html_file:
         html_file.write(get_link_data(link))
-    return path_to_save
+    make_folder = make_dir(converted_link, save_path)
+    download_pictures(path_to_file, make_folder, link)
+    return path_to_file
