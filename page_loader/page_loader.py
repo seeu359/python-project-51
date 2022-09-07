@@ -4,6 +4,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+import pathlib
 
 FORMAT_FILE = '.html'
 FOLDER_SUFFIX = '_files'
@@ -16,6 +17,7 @@ def make_picture_link(page_link, picture_link):
     else:
         build_link = furl.furl(page_link).add(path=picture_link)
         return str(build_link)
+
 
 
 def get_format_link(link):
@@ -62,16 +64,22 @@ def download_pictures(webpage_path, download_folder, link):
             path_to_save = os.path.join(download_folder,
                                         get_format_link(
                                             constructed_link)) + extension
+            pure_path = pathlib.PurePath(download_folder).name
+            img['src'] = os.path.join(pure_path, get_format_link(
+                constructed_link) + extension)
             with open(path_to_save, 'wb') as picture:
                 for chunk in request.iter_content(chunk_size=1000):
                     picture.write(chunk)
+    file_data = handler.prettify()
+    return file_data
 
 
 def download(link, save_path=os.getcwd()):
     converted_link = get_format_link(link)
-    path_to_file = os.path.join(save_path, converted_link) + FORMAT_FILE
-    with open(path_to_file, 'w') as html_file:
+    file_path = os.path.join(save_path, converted_link) + FORMAT_FILE
+    with open(file_path, 'w') as html_file:
         html_file.write(get_link_data(link))
-    make_folder = make_dir(converted_link, save_path)
-    download_pictures(path_to_file, make_folder, link)
-    return path_to_file
+        make_folder = make_dir(converted_link, save_path)
+        file_data = download_pictures(file_path, make_folder, link)
+        html_file.write(file_data)
+    return file_path
