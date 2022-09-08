@@ -49,7 +49,6 @@ def test_link_change(open_unmodified_html):
     fixture_before_change = open_unmodified_html
     with tempfile.TemporaryDirectory() as tmp:
         webpage_path = 'tests/fixtures/hexlet-courses-fixture.html'
-        modified_html = page_loader.download_pictures(webpage_path,
-                                                             tmp, TEST_LINK)
+        modified_html = page_loader.download_pictures(webpage_path, tmp,
+                                                      TEST_LINK)
         assert modified_html != fixture_before_change
-
