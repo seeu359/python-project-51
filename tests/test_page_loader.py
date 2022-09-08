@@ -28,6 +28,7 @@ def test_download_page(_fixture_hexlet_courses):
             page_loader.download(TEST_LINK, tmp)
         with open(path) as test_f:
             test_file = test_f.read()
+
         assert os.path.isfile(path) is True
         assert test_file == _fixture_hexlet_courses
 
@@ -40,5 +41,6 @@ def test_download_picture(_fixture_picture):
             path = pathlib.Path(tmp, i)
             with open(path, 'rb') as test_pic:
                 test_picture = test_pic.read()
+
         assert test_picture == _fixture_picture
         assert len(os.listdir(tmp)) == 1
