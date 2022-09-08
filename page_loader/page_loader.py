@@ -19,7 +19,6 @@ def make_picture_link(page_link, picture_link):
         return str(build_link)
 
 
-
 def get_format_link(link):
     parse_link = urlparse(link)
     link_without_scheme = ''.join(parse_link[1:])
@@ -83,3 +82,6 @@ def download(link, save_path=os.getcwd()):
         file_data = download_pictures(file_path, make_folder, link)
         html_file.write(file_data)
     return file_path
+
+
+download('https://ru.hexlet.io/courses')

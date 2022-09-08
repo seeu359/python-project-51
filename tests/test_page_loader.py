@@ -13,9 +13,9 @@ def test_get_link_data():
         assert result == 'mock_test'
 
 
-def test_get_format_path(_result_format_path):
-    result = 'var/tmp/ru-hexlet-io-projects-51-members-24681.html'
-    assert result == _result_format_path
+def test_get_format_path(_result_format_link):
+    result = 'ru-hexlet-io-projects-51-members-24681'
+    assert result == _result_format_link
 
 
 def test_download(_fixture_hexlet_courses):
