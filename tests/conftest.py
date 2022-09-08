@@ -20,6 +20,3 @@ def _fixture_picture():
     with open('tests/fixtures/picture_from_html.png', 'rb') as _fixture:
         fixture = _fixture.read()
     return fixture
-
-
-
