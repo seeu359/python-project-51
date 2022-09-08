@@ -33,14 +33,6 @@ def test_download_page(_fixture_hexlet_courses):
         assert test_file == _fixture_hexlet_courses
 
 
-def test_download_picture(_fixture_picture):
-    with tempfile.TemporaryDirectory() as tmp:
-        webpage_path = 'tests/fixtures/hexlet-courses-fixture.html'
-        page_loader.download_pictures(webpage_path, tmp, TEST_LINK)
-        for i in os.listdir(tmp):
-            path = pathlib.Path(tmp, i)
-            with open(path, 'rb') as test_pic:
-                test_picture = test_pic.read()
+def test_download_picture(_download_pic, _fixture_picture):
+    assert _download_pic == _fixture_picture
 
-        assert test_picture == _fixture_picture
-        assert len(os.listdir(tmp)) == 1
