@@ -20,25 +20,36 @@ def test_get_format_path(_result_format_link):
     assert result == _result_format_link
 
 
-def test_download_page(_fixture_hexlet_courses):
+def test_download_page(open_hexlet_courses):
     with tempfile.TemporaryDirectory() as tmp:
         with requests_mock.Mocker() as mock:
             path = pathlib.Path(tmp, 'test-com.html')
-            mock.get(TEST_LINK, text=_fixture_hexlet_courses)
+            mock.get(TEST_LINK, text=open_hexlet_courses)
             page_loader.download(TEST_LINK, tmp)
         with open(path) as test_f:
             test_file = test_f.read()
 
         assert os.path.isfile(path) is True
-        assert test_file == _fixture_hexlet_courses
+        assert test_file == open_hexlet_courses
 
 
-def test_download_picture(_fixture_picture):
+def test_download_picture():
     with tempfile.TemporaryDirectory() as tmp:
         webpage_path = 'tests/fixtures/hexlet-courses-fixture.html'
         page_loader.download_pictures(webpage_path, tmp, TEST_LINK)
         for i in os.listdir(tmp):
             path = pathlib.Path(tmp, i)
             with open(path, 'rb') as test_pic:
-                test_picture = test_pic.read()
+                _ = test_pic.read()
             assert len(os.listdir(tmp)) == 1
+            assert os.path.exists(path) is True
+
+
+def test_link_change(open_unmodified_html):
+    fixture_before_change = open_unmodified_html
+    with tempfile.TemporaryDirectory() as tmp:
+        webpage_path = 'tests/fixtures/hexlet-courses-fixture.html'
+        modified_html = page_loader.download_pictures(webpage_path,
+                                                             tmp, TEST_LINK)
+        assert modified_html != fixture_before_change
+

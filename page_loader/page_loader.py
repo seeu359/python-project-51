@@ -82,3 +82,6 @@ def download(link, save_path=os.getcwd()):
         file_data = download_pictures(file_path, make_folder, link)
         html_file.write(file_data)
     return file_path
+
+
+print(get_format_link('https://cdn2.hexlet.io/store/derivatives/original/588a280155f63d38fff562f0b3ad4e07.png') + '.png')
