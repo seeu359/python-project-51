@@ -2,7 +2,7 @@
 dist/
 .idea/
 .coverage
-coverage.xml
+*.xml
 test-coverage-tool
 __pycache__/
 .pytest_cache
