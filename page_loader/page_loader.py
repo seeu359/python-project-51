@@ -82,6 +82,3 @@ def download(link, save_path=os.getcwd()):
         file_data = download_pictures(file_path, make_folder, link)
         html_file.write(file_data)
     return file_path
-
-
-download('https://ru.hexlet.io/courses')
