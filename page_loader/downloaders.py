@@ -14,12 +14,10 @@ def get_link_pic(link):
     return requests.get(link, stream=True)
 
 
-def download_pictures(webpage_path, download_folder, link,
-                      image_parser=get_link_pic,
-                      image_recorder=fh.record_image):
-    with open(webpage_path) as file:
-        html_file = file.read()
-    handler = BeautifulSoup(html_file, 'html.parser')
+def get_local_resources(file_data, download_folder, link,
+                        data_parser=get_link_pic,
+                        data_recorder=fh.record_image):
+    handler = BeautifulSoup(file_data, 'html.parser')
     find_img = handler.find_all('img')
     for img in find_img:
         pic_link = img['src']
@@ -27,13 +25,13 @@ def download_pictures(webpage_path, download_folder, link,
         if (extension == '.png' or extension == '.jpg') and \
                 lh.domain_check(pic_link, link) is True:
             constructed_link = lh.make_picture_link(link, pic_link)
-            request = image_parser(constructed_link)
+            request = data_parser(constructed_link)
             save_path = os.path.join(download_folder,
                                      lh.get_format_link(
                                             constructed_link)) + extension
             pure_path = pathlib.PurePath(download_folder).name
             img['src'] = os.path.join(pure_path, lh.get_format_link(
                 constructed_link) + extension)
-            image_recorder(save_path, request)
+            data_recorder(save_path, request)
     file_data = handler.prettify()
     return file_data
