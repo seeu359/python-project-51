@@ -3,6 +3,11 @@ import os
 FOLDER_SUFFIX = '_files'
 
 
+def record_resources(save_path, data):
+    with open(save_path, 'w') as local_resources:
+        local_resources.write(data)
+
+
 def record_image(save_path, request):
     with open(save_path, 'wb') as picture:
         for chunk in request.iter_content(chunk_size=1000):
