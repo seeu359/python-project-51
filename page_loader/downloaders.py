@@ -50,11 +50,12 @@ class Downloaders:
             if checker(tag, res, self.link):
                 link = PathBuilder(self.link).build_link(res)
                 resource_data = resource_loader(link)
-                self.record_resources(link, resource, tag_name, tag_attr,
+                self.record_resources(link, resource, tag,
                                       resource_data)
 
-    def record_resources(self, link, resource, tag_name, tag_attr, data):
+    def record_resources(self, link, resource, tag, data):
 
+        tag_name, tag_attr = self.tags[tag]
         path = PathBuilder(link).make_save_path(self.resource_folder)
         resource[tag_attr] = path
         path_to_save = os.path.join(self.save_path, path)
