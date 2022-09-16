@@ -1,63 +1,32 @@
 import os
 import pytest
-from page_loader import link_handling as lh
+import requests
 from bs4 import BeautifulSoup
+from page_loader.downloaders import Downloaders
+import requests_mock
 
 PATH = 'tests/fixtures'
+TEST_LINK = 'http://test.com'
+TEST_PATH = os.getcwd()
 
 
-def get_path(filename):
-    return os.path.join(PATH, filename)
-
-
-@pytest.fixture()
-def _result_format_link():
-    link = 'https://ru.hexlet.io/projects/51/members/24681'
-    return lh.get_format_link(link)
-
-
-@pytest.fixture()
-def open_picture():
-    with open(os.path.join(PATH, 'picture_from_html.png'), 'rb') as _fixture:
-        fixture = _fixture.read()
-    return fixture
+def read_html_data(path):
+    with open(path) as f:
+        file = f.read()
+    return file
 
 
 @pytest.fixture()
-def open_unmodified_html():
-    with open(os.path.join(PATH, 'hexlet-courses-fixture.html')) as _fixture:
-        fixture = _fixture.read()
-    pars_html = BeautifulSoup(fixture, 'html.parser').prettify()
-    return pars_html
+def get_link_data_fixture():
+    with requests_mock.Mocker() as mock:
+        data = read_html_data(os.path.join(PATH, 'fixture_for_img.html'))
+        mock.get(TEST_LINK, text='test')
+        test_obj = Downloaders(TEST_LINK, TEST_PATH, data)
+        return test_obj.get_text_data(TEST_LINK)
 
 
 @pytest.fixture()
-def image_fixture():
-    with open(get_path('fixture_for_img.html')) as _fixture:
-        fixture = _fixture.read()
-    pars_html = BeautifulSoup(fixture, 'html.parser')
-    images = pars_html.find_all('img', {'src': True})
-    image_name = str()
-    for img in images:
-        image_name += img['src']
-    return pars_html, image_name
-
-
-@pytest.fixture()
-def links_fixture():
-    with open(get_path('fixture_for_link.html')) as _fixture:
-        fixture = _fixture.read()
-    pars_html = BeautifulSoup(fixture, 'html.parser')
-    link_list = pars_html.find_all('link', {'href': True})
-    link_name = list()
-    for link in link_list:
-        link_name.append(link['href'])
-    return pars_html, link_name
-
-
-@pytest.fixture()
-def script_fixture():
-    with open(get_path('fixture_for_script.html')) as _fixture:
-        fixture = _fixture.read()
-    pars_html = BeautifulSoup(fixture, 'html.parser')
-    return pars_html
+def resources_lst_fixture():
+    data = read_html_data(os.path.join(PATH, 'fixture_for_img.html'))
+    test_obj = Downloaders(TEST_LINK, os.getcwd(), data)
+    return test_obj.get_resources_lst(test_obj.tags['img'])

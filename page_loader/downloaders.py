@@ -6,7 +6,6 @@ import logging
 from page_loader.file_handling import FileWorker
 from page_loader.link_handling import PathBuilder
 
-
 FOLDER_SUFFIX = '_files'
 FORMAT_FILE = '.html'
 
@@ -17,21 +16,16 @@ class Downloaders:
             'link': ('link', 'href'),
             'script': ('script', 'src')}
 
-    def __init__(self, link, save_path=os.getcwd()):
+    def __init__(self, link, save_path, data):
         self.link = link
         self.format_link = PathBuilder(link).format_link()
+        self.data = BeautifulSoup(data, 'html.parser')
         self.save_path = save_path
         self.main_file_path = os.path.join(self.save_path,
                                            self.format_link) + FORMAT_FILE
-        self.link_data = BeautifulSoup(self.get_link_data(), 'html.parser')
         self.resource_folder = os.path.join(save_path,
                                             self.format_link) + FOLDER_SUFFIX
-
         make_dir(self.resource_folder)
-
-    def get_link_data(self):
-        logging.info(f'request {self.link}')
-        return requests.get(self.link).text
 
     @staticmethod
     def get_image_data(link):
@@ -43,14 +37,15 @@ class Downloaders:
 
     def get_resources_lst(self, tag):
         tag_name, tag_attr = tag
-        resources = self.link_data.find_all(tag_name, {tag_attr: True})
+        resources = self.data.find_all(tag_name, {tag_attr: True})
         return resources
 
     def download_resources(self, tag):
         resource_loader = self.get_image_data if tag == 'img' else \
             self.get_text_data
         tag_name, tag_attr = self.tags[tag]
-        for resource in self.get_resources_lst(self.tags[tag]):
+        resource_list = self.get_resources_lst(self.tags[tag])
+        for resource in resource_list:
             res = resource[tag_attr]
             if checker(tag, res, self.link):
                 link = PathBuilder(self.link).build_link(res)
@@ -68,7 +63,7 @@ class Downloaders:
         self.download_resources('img')
         self.download_resources('link')
         self.download_resources('script')
-        FileWorker(self.link_data.prettify(),
+        FileWorker(self.data.prettify(),
                    self.main_file_path).record_html()
 
 
@@ -92,9 +87,8 @@ def domain_check(resource_link, web_page):
     web_page_parse = urlparse(web_page)
     if not picture_link_parse.scheme:
         return True
-    else:
-        return True if web_page_parse.netloc == picture_link_parse.netloc \
-            else False
+    return True if web_page_parse.netloc == picture_link_parse.netloc \
+        else False
 
 
 def make_dir(path):
