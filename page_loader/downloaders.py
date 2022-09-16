@@ -50,13 +50,18 @@ class Downloaders:
             if checker(tag, res, self.link):
                 link = PathBuilder(self.link).build_link(res)
                 resource_data = resource_loader(link)
-                path = PathBuilder(link).make_save_path(self.resource_folder)
-                resource[tag_attr] = path
-                path_to_save = os.path.join(self.save_path, path)
-                _file_worker = FileWorker(resource_data, path_to_save)
-                recorder = _file_worker.record_image if tag == 'img' else \
-                    _file_worker.record_resource
-                recorder()
+                self.record_resources(link, resource, tag_name, tag_attr,
+                                      resource_data)
+
+    def record_resources(self, link, resource, tag_name, tag_attr, data):
+
+        path = PathBuilder(link).make_save_path(self.resource_folder)
+        resource[tag_attr] = path
+        path_to_save = os.path.join(self.save_path, path)
+        _file_worker = FileWorker(data, path_to_save)
+        recorder = _file_worker.record_image if tag_name == 'img' else \
+            _file_worker.record_resource
+        recorder()
 
     def download_all(self):
 
