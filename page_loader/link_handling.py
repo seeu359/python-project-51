@@ -2,40 +2,47 @@ from urllib.parse import urlparse
 import furl
 import re
 import os
+import pathlib
+
+FORMAT_FILE = '.html'
 
 
-def domain_check(picture_link, web_page):
-    picture_link_parse = urlparse(picture_link)
-    web_page_parse = urlparse(web_page)
-    if not picture_link_parse.scheme:
-        return True
-    else:
-        return True if web_page_parse.netloc == picture_link_parse.netloc \
-            else False
+class PathBuilder:
 
+    def __init__(self, link):
+        self.link = link
 
-def make_source_link(page_link, picture_link):
-    picture_link_pars = urlparse(picture_link)
-    page_link_pars = urlparse(page_link)
-    if picture_link_pars.scheme:
-        return picture_link
-    else:
-        link_body = f'{page_link_pars.scheme}://{page_link_pars.netloc}'
-        build_link = furl.furl(link_body).add(path=picture_link)
-        return str(build_link)
+    def make_save_path(self, save_folder):
+        body, extension = os.path.splitext(self.link)
+        if not extension:
+            extension = FORMAT_FILE
+        delete_scheme_in_link = re.sub('http://|https://', '', body)
+        replace_symbols_in_link = re.sub(r'[^a-zA-Z\d]', '-',
+                                         delete_scheme_in_link)
+        pure_path = pathlib.PurePath(save_folder).name
+        return os.path.join(pure_path, replace_symbols_in_link) + extension
 
+    def build_link(self, file_path):
+        parse_img_path = urlparse(file_path)
+        parse_webpage_link = urlparse(self.link)
+        if parse_img_path.scheme:
+            return file_path
+        link_body = f'{parse_webpage_link.scheme}://' \
+                    f'{parse_webpage_link.netloc}'
+        collected_link = furl.furl(link_body).add(path=file_path)
+        return str(collected_link)
 
-def get_format_link(link):
-    parse_link = urlparse(link)
-    link_without_scheme = ''.join(parse_link[1:])
-    template = re.findall(r'[\da-zA-Z-.]+\.[a-zAZ]+/[@\w/-]+\.\w+',
-                          link_without_scheme)
-    not_format_link = link_without_scheme[0:-1] if link.endswith('/') else \
-        link_without_scheme
+    def format_link(self):
+        parse_link = urlparse(self.link)
+        link_without_scheme = ''.join(parse_link[1:])
+        template = re.findall(r'[\da-zA-Z-.]+\.[a-zAZ]+/[@\w/-]+\.\w+',
+                              link_without_scheme)
+        not_format_link = link_without_scheme[0:-1] if \
+            self.link.endswith('/') else link_without_scheme
 
-    if len(template) == 0:
-        format_link = re.sub(r'[^a-zA-Z\d]', '-', not_format_link)
+        if len(template) == 0:
+            format_link = re.sub(r'[^a-zA-Z\d]', '-', not_format_link)
+            return format_link
+        link_body, _ = os.path.splitext(not_format_link)
+        format_link = re.sub(r'[^a-zA-Z\d]', '-', link_body)
         return format_link
-    link_body, _ = os.path.splitext(not_format_link)
-    format_link = re.sub(r'[^a-zA-Z\d]', '-', link_body)
-    return format_link

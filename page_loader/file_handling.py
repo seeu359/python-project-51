@@ -1,22 +1,21 @@
-import os
-
-FOLDER_SUFFIX = '_files'
+FORMAT_FILE = '.html'
 
 
-def record_resources(save_path, data):
-    with open(save_path, 'w') as local_resources:
-        local_resources.write(data)
+class FileWorker:
 
+    def __init__(self, data, path):
+        self.data = data
+        self.path = path
 
-def record_image(save_path, request):
-    with open(save_path, 'wb') as picture:
-        for chunk in request.iter_content(chunk_size=1000):
-            picture.write(chunk)
+    def record_image(self):
+        with open(self.path, 'wb') as image:
+            for chunk in self.data.iter_content(chunk_size=1000):
+                image.write(chunk)
 
+    def record_html(self):
+        with open(self.path, 'w') as file:
+            file.write(self.data)
 
-def make_dir(link, save_path):
-    path_to_folder = os.path.join(save_path, link) + FOLDER_SUFFIX
-    if os.path.exists(path_to_folder):
-        return path_to_folder
-    os.mkdir(path_to_folder)
-    return path_to_folder
+    def record_resource(self):
+        with open(self.path, 'w') as resource:
+            resource.write(self.data)

@@ -19,7 +19,6 @@ jobs:
           make install
       - name: Run tests and lint
         run: |
-            make pyt
             make lint
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v2.7.4
