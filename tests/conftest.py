@@ -1,15 +1,14 @@
 import os
 import pytest
-import requests
 from bs4 import BeautifulSoup
 from page_loader.downloaders import Downloaders
+from page_loader.link_handling import PathBuilder
 import requests_mock
 import tempfile
-import pathlib
 
 PATH = 'tests/fixtures'
 TEST_LINK = 'http://test.com'
-TEST_PATH = os.getcwd()
+TEST_FILE_PATH = 'test/file/path.png'
 
 
 def read_picture(path):
@@ -26,23 +25,23 @@ def read_text_data(path):
 
 @pytest.fixture()
 def get_link_data_fixture():
-    with requests_mock.Mocker() as mock:
-        data = read_text_data(os.path.join(PATH, 'fixture_for_img.html'))
-        mock.get(TEST_LINK, text='test')
-        test_obj = Downloaders(TEST_LINK, TEST_PATH, data)
-        return test_obj.get_text_data(TEST_LINK)
+    with tempfile.TemporaryDirectory() as tmp:
+        with requests_mock.Mocker() as mock:
+            data = read_text_data(os.path.join(PATH, 'fixture_for_img.html'))
+            mock.get(TEST_LINK, text='test')
+            test_obj = Downloaders(TEST_LINK, tmp, data)
+            return test_obj.get_text_data(TEST_LINK)
 
 
 @pytest.fixture()
-def resources_lst_fixture():
-    data = read_text_data(os.path.join(PATH, 'fixture_for_img.html'))
-    test_obj = Downloaders(TEST_LINK, os.getcwd(), data)
-    return test_obj.get_resources_lst(test_obj.tags['img'])
-
-
-@pytest.fixture()
-def read_html_fixture():
+def html_fixture():
     path = os.path.join(PATH, 'fixture_page.html')
+    return read_text_data(path)
+
+
+@pytest.fixture()
+def html_fixture2():
+    path = os.path.join(PATH, 'fixture_page2.html')
     return read_text_data(path)
 
 
