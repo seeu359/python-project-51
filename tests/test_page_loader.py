@@ -3,7 +3,7 @@ import requests_mock
 import pathlib
 import tempfile
 import os
-from page_loader.downloaders import Downloaders
+from page_loader.downloaders import Downloaders, checker
 from page_loader.file_handling import FileWorker
 import requests
 
@@ -19,7 +19,7 @@ def read_picture(path):
     return file
 
 
-def read_html_data(path):
+def read_text_data(path):
     with open(path) as f:
         file = f.read()
     return file
@@ -56,13 +56,35 @@ def test_change_path_in_html(test_bs_object):
             assert old_path != new_path
 
 
+def test_record_recourse(read_html_fixture, css_fixture):
+    with tempfile.TemporaryDirectory() as tmp:
+        test_obj = Downloaders(TEST_LINK, tmp, read_html_fixture)
+        data = css_fixture
+        path = test_obj.record_resources('link', 'test_folder', data)
+        temp_css_file = read_text_data(path)
+        assert temp_css_file == css_fixture
+
+
 @pytest.mark.parametrize('file, input_value, expected',
                          [('fixture_for_img.html', 'img', 1),
                           ('fixture_for_link.html', 'link', 2),
                           ('fixture_for_script.html', 'script', 2)]
                          )
 def test_resource_lst(file, input_value, expected):
-    test_data = read_html_data(os.path.join(PATH, file))
+    test_data = read_text_data(os.path.join(PATH, file))
     test_obj = Downloaders(TEST_LINK, os.getcwd(), test_data)
     assert len(test_obj.get_resources_lst(
         test_obj.tags[input_value])) == expected
+
+
+@pytest.mark.parametrize('tag, res_path, webpage_link, expected,',
+                         [('img', '/test/path.svg', TEST_LINK, False),
+                          ('img', 'http://test.com/test/path.png',
+                           TEST_LINK, True),
+                          ('link', 'https://ru.test.com', TEST_LINK, False),
+                          ('script', '/hello/test/script.js', TEST_LINK, True)]
+                         )
+def test_checker(tag, res_path, webpage_link, expected):
+    assert checker(tag, res_path, webpage_link) is expected
+
+

@@ -50,7 +50,7 @@ class Downloaders:
             if checker(tag, resource, self.link):
                 link = PathBuilder(self.link).build_link(resource)
                 resource_data = resource_loader(link)
-                path = self.change_path_in_html(link, res, tag, resource_data)
+                path = self.change_path_in_html(link, res, tag)
                 self.record_resources(tag, path, resource_data)
 
     def change_path_in_html(self, link, resource, tag):
@@ -59,13 +59,14 @@ class Downloaders:
         resource[tag_attr] = path
         return path
 
-    def record_resources(self, tag, path,  data):
+    def record_resources(self, tag, path, data):
         tag_name, tag_attr = self.tags[tag]
         path_to_save = os.path.join(self.save_path, path)
         _file_worker = FileWorker(data, path_to_save)
         recorder = _file_worker.record_image if tag_name == 'img' else \
             _file_worker.record_resource
         recorder()
+        return path_to_save
 
     def download_all(self):
 
