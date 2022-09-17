@@ -1,8 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
 import os
-from urllib.parse import urlparse
 import logging
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 from page_loader.file_handling import FileWorker
 from page_loader.link_handling import PathBuilder
 
@@ -43,21 +43,24 @@ class Downloaders:
     def download_resources(self, tag):
         resource_loader = self.get_image_data if tag == 'img' else \
             self.get_text_data
-        tag_name, tag_attr = self.tags[tag]
+        _, tag_attr = self.tags[tag]
         resource_list = self.get_resources_lst(self.tags[tag])
-        for resource in resource_list:
-            res = resource[tag_attr]
-            if checker(tag, res, self.link):
-                link = PathBuilder(self.link).build_link(res)
+        for res in resource_list:
+            resource = res[tag_attr]
+            if checker(tag, resource, self.link):
+                link = PathBuilder(self.link).build_link(resource)
                 resource_data = resource_loader(link)
-                self.record_resources(link, resource, tag,
-                                      resource_data)
+                path = self.change_path_in_html(link, res, tag, resource_data)
+                self.record_resources(tag, path, resource_data)
 
-    def record_resources(self, link, resource, tag, data):
-
-        tag_name, tag_attr = self.tags[tag]
+    def change_path_in_html(self, link, resource, tag):
+        _, tag_attr = self.tags[tag]
         path = PathBuilder(link).make_save_path(self.resource_folder)
         resource[tag_attr] = path
+        return path
+
+    def record_resources(self, tag, path,  data):
+        tag_name, tag_attr = self.tags[tag]
         path_to_save = os.path.join(self.save_path, path)
         _file_worker = FileWorker(data, path_to_save)
         recorder = _file_worker.record_image if tag_name == 'img' else \

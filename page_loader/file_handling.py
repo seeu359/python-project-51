@@ -13,6 +13,7 @@ class FileWorker:
                 image.write(chunk)
 
     def record_html(self):
+
         with open(self.path, 'w') as file:
             file.write(self.data)
 

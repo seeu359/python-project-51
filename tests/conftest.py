@@ -4,10 +4,18 @@ import requests
 from bs4 import BeautifulSoup
 from page_loader.downloaders import Downloaders
 import requests_mock
+import tempfile
+import pathlib
 
 PATH = 'tests/fixtures'
 TEST_LINK = 'http://test.com'
 TEST_PATH = os.getcwd()
+
+
+def read_picture(path):
+    with open(path, 'rb') as f:
+        file = f.read()
+    return file
 
 
 def read_html_data(path):
@@ -30,3 +38,17 @@ def resources_lst_fixture():
     data = read_html_data(os.path.join(PATH, 'fixture_for_img.html'))
     test_obj = Downloaders(TEST_LINK, os.getcwd(), data)
     return test_obj.get_resources_lst(test_obj.tags['img'])
+
+
+@pytest.fixture()
+def read_html_fixture():
+    path = os.path.join(PATH, 'fixture_page.html')
+    return read_html_data(path)
+
+@pytest.fixture()
+def test_bs_object():
+    path = os.path.join(PATH, 'fixture_page.html')
+    file = read_html_data(path)
+    pars_file = BeautifulSoup(file, 'html.parser')
+    find_img = pars_file.find_all('img', {'src': True})
+    return file, find_img
