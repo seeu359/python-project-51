@@ -92,15 +92,14 @@ def test_resource_lst(file, input_value, expected):
             test_obj.tags[input_value])) == expected
 
 
-@pytest.mark.parametrize('tag, res_path, webpage_link, expected,',
-                         [('img', '/test/path.svg', TEST_LINK, False),
-                          ('img', 'http://test.com/test/path.png',
-                           TEST_LINK, True),
-                          ('link', 'https://ru.test.com', TEST_LINK, False),
-                          ('script', '/hello/test/script.js', TEST_LINK, True)]
+@pytest.mark.parametrize('tag, res_path, expected,',
+                         [('img', '/test/path.svg', False),
+                          ('img', 'http://test.com/test/path.png', True),
+                          ('link', 'https://ru.test.com', False),
+                          ('script', '/hello/test/script.js', True)]
                          )
-def test_checker(tag, res_path, webpage_link, expected):
-    assert checker(tag, res_path, webpage_link) is expected
+def test_checker(tag, res_path, expected):
+    assert checker(tag, res_path, TEST_LINK) is expected
 
 
 @pytest.mark.parametrize('link, expected',
@@ -112,8 +111,7 @@ def test_checker(tag, res_path, webpage_link, expected):
 def test_make_save_path(link, expected):
     test_obj = PathBuilder(link)
     folder = 'main/folder_files'
-    assert test_obj.make_save_path(folder) == \
-           expected
+    assert test_obj.make_save_path(folder) == expected
 
 
 @pytest.mark.parametrize('link, file_path, expected',
