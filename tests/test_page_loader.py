@@ -7,7 +7,7 @@ import os
 from page_loader.downloaders import Downloaders, checker
 from page_loader.file_handling import FileWorker
 from page_loader.link_handling import PathBuilder
-from page_loader.page_loader import download
+from page_loader.loader import download
 
 
 TEST_LINK = 'http://test.com'

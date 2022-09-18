@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 
-from page_loader.page_loader import download
+from page_loader.loader import download
 from page_loader.cli import get_parser_args
 
 
