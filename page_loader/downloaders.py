@@ -1,3 +1,5 @@
+import sys
+
 import requests
 import os
 import logging
@@ -16,7 +18,7 @@ class Downloaders:
             'link': ('link', 'href'),
             'script': ('script', 'src')}
 
-    def __init__(self, link, save_path, data):
+    def __init__(self, link: str, save_path: str, data: str):
         self.link = link
         self.format_link = PathBuilder(link).format_link()
         self.data = BeautifulSoup(data, 'html.parser')
@@ -25,22 +27,21 @@ class Downloaders:
                                            self.format_link) + FORMAT_FILE
         self.resource_folder = os.path.join(save_path,
                                             self.format_link) + FOLDER_SUFFIX
-        make_dir(self.resource_folder)
 
     @staticmethod
-    def get_image_data(link):
+    def get_image_data(link: str) -> requests.models.Response:
         return requests.get(link, stream=True)
 
     @staticmethod
-    def get_text_data(link):
+    def get_text_data(link: str) -> str:
         return requests.get(link).text
 
-    def get_resources_lst(self, tag):
+    def get_resources_lst(self, tag: str) -> list:
         tag_name, tag_attr = tag
         resources = self.data.find_all(tag_name, {tag_attr: True})
         return resources
 
-    def download_resources(self, tag):
+    def download_resources(self, tag: str) -> None:
         resource_loader = self.get_image_data if tag == 'img' else \
             self.get_text_data
         _, tag_attr = self.tags[tag]
@@ -53,13 +54,14 @@ class Downloaders:
                 path = self.change_path_in_html(link, res, tag)
                 self.record_resources(tag, path, resource_data)
 
-    def change_path_in_html(self, link, resource, tag):
+    def change_path_in_html(self, link: str, resource: dict, tag: str) -> str:
         _, tag_attr = self.tags[tag]
         path = PathBuilder(link).make_save_path(self.resource_folder)
         resource[tag_attr] = path
         return path
 
-    def record_resources(self, tag, path, data):
+    def record_resources(self, tag: str, path: str,
+                         data: [str, requests.models.Response]) -> str:
         tag_name, tag_attr = self.tags[tag]
         path_to_save = os.path.join(self.save_path, path)
         _file_worker = FileWorker(data, path_to_save)
@@ -70,6 +72,8 @@ class Downloaders:
 
     def download_all(self):
 
+        make_dir(self.resource_folder)
+        logging.info('Download image!')
         self.download_resources('img')
         self.download_resources('link')
         self.download_resources('script')
@@ -102,7 +106,11 @@ def domain_check(resource_link, web_page):
 
 
 def make_dir(path):
-    if os.path.exists(path):
-        return None
-    logging.info('Creating a folder for local resources')
-    os.mkdir(path)
+    try:
+        if os.path.exists(path):
+            pass
+        logging.info('Creating a folder for local resources')
+        os.mkdir(path)
+    except OSError:
+        logging.error('it is not possible to create a folder in this path')
+        sys.exit(2)
