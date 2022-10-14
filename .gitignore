@@ -7,3 +7,4 @@ test-coverage-tool
 __pycache__/
 .pytest_cache
 *.log
+_smth.py

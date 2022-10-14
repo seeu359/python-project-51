@@ -5,6 +5,7 @@ from page_loader.downloaders import Downloaders
 from page_loader.link_handling import PathBuilder
 import requests_mock
 import tempfile
+from page_loader.dataclasses import DownloadInformation
 
 PATH = 'tests/fixtures'
 TEST_LINK = 'http://test.com'
@@ -23,13 +24,21 @@ def read_text_data(path):
     return file
 
 
+@pytest.fixture
+def _test_main_obj():
+    with tempfile.TemporaryDirectory() as tmp:
+        test_download_info = DownloadInformation(TEST_LINK, path_to_save_directory=tmp)
+        return test_download_info, tmp
+
+
 @pytest.fixture()
 def get_link_data_fixture():
     with tempfile.TemporaryDirectory() as tmp:
+        test_main_obj = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp)
         with requests_mock.Mocker() as mock:
             data = read_text_data(os.path.join(PATH, 'fixture_for_img.html'))
             mock.get(TEST_LINK, text='test')
-            test_obj = Downloaders(TEST_LINK, tmp, data)
+            test_obj = Downloaders(test_main_obj, data)
             return test_obj.get_text_data(TEST_LINK)
 
 
@@ -50,8 +59,10 @@ def test_bs_object():
     path = os.path.join(PATH, 'fixture_page.html')
     file = read_text_data(path)
     pars_file = BeautifulSoup(file, 'html.parser')
-    find_img = pars_file.find_all('img', {'src': True})
-    return file, find_img
+    img_resources_set = pars_file.find_all('img', {'src': True})
+    link_resource_set = pars_file.find_all('link', {'href': True})
+    script_resource_set = pars_file.find_all('script', {'src': True})
+    return img_resources_set, link_resource_set, script_resource_set
 
 
 @pytest.fixture()

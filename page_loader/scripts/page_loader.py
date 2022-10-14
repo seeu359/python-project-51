@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import logging
-import os
 import sys
-
-from page_loader.loader import download, PageNotAvailable
+from page_loader.loader import download, PageNotAvailableError
+from page_loader.link_handling import MissingSchemaError
 from page_loader.cli import get_parser_args
 
 
-logging.basicConfig(filename=os.path.join(os.path.abspath(os.curdir),
-                                          'page_loader/logs.log'),
+logging.basicConfig(filename='/Users/a.cheremushkin/PythonProjects/'
+                             'python-project-51/page_loader/logs.log',
                     level=logging.DEBUG)
 
 
@@ -17,9 +16,14 @@ def main():
     args = get_parser_args()
     try:
         print(download(args.link, args.output))
+        print('Page was downloaded!')
         sys.exit(0)
-    except PageNotAvailable:
-        print('Failed to load page (error 404)')
+    except PageNotAvailableError:
+        print('Failed to load page!')
+        sys.exit(1)
+    except MissingSchemaError:
+        print(f'There is no scheme in the page address. '
+              f'Example link: "https://{args.link}"')
         sys.exit(1)
 
 

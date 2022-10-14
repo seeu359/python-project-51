@@ -4,11 +4,11 @@ import pathlib
 import tempfile
 import requests
 import os
-from page_loader.downloaders import Downloaders, checker
+from page_loader.downloaders import Downloaders, _checker, _change_path_in_html, _record_resources
 from page_loader.file_handling import FileWorker
 from page_loader.link_handling import PathBuilder
 from page_loader.loader import download
-
+from page_loader.dataclasses import RecordingData, DownloadInformation, TagType
 
 TEST_LINK = 'http://test.com'
 PATH = 'tests/fixtures'
@@ -31,12 +31,11 @@ def test_main_func(html_fixture2):
         with requests_mock.Mocker() as mock:
             mock.get(TEST_LINK, text=html_fixture2)
             path = download(TEST_LINK, tmp)
-            path_to_file = os.path.join(tmp, 'test.html')
-            path_to_dir = os.path.join(tmp, 'test_files')
-            assert os.path.exists(path_to_file)
-            assert os.path.isfile(path_to_file)
+            path_to_dir = os.path.join(tmp, 'test-com_files')
+            print(os.listdir(tmp))
+            assert os.path.exists(path)
+            assert os.path.isfile(path)
             assert os.path.isdir(path_to_dir)
-            assert isinstance(path, str) is True
 
 
 def test_get_link_data(get_link_data_fixture):
@@ -44,15 +43,16 @@ def test_get_link_data(get_link_data_fixture):
 
 
 def test_get_image_data(html_fixture):
-    test_data = html_fixture
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory() as tmp_dir:
         with requests_mock.Mocker() as mock:
-            obj = Downloaders(TEST_LINK, tmp, test_data)
+            test_download_info = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp_dir)
+            test_main_obj = Downloaders(test_download_info, html_fixture)
             content = read_picture(os.path.join(PATH, 'image_fixture.png'))
             mock.get(TEST_LINK, content=content)
-            image_data = obj.get_image_data(TEST_LINK)
-            path = pathlib.Path(tmp, 'test.png')
-            file_worker = FileWorker(image_data, path)
+            image_data = test_main_obj.get_image_data(TEST_LINK)
+            path = pathlib.Path(tmp_dir, 'test.png')
+            recording_data = RecordingData(data=image_data, path_to_save_data=str(path))
+            file_worker = FileWorker(recording_data)
             file_worker.record_image()
             image = read_picture(path)
             assert image == requests.get(TEST_LINK).content
@@ -60,46 +60,45 @@ def test_get_image_data(html_fixture):
 
 def test_change_path_in_html(test_bs_object):
     with tempfile.TemporaryDirectory() as tmp:
-        link = 'https://page-loader.hexlet.repl.co/'
-        test_html, test_img = test_bs_object
-        test_obj = Downloaders(link, tmp, test_html)
-        for img in test_img:
+        img_result_set, _, _ = test_bs_object
+        for img in img_result_set:
             old_path = img['src']
-            new_path = test_obj.change_path_in_html(TEST_LINK, img,
-                                                    'img')
+            new_path = _change_path_in_html(TEST_LINK, img, 'src', tmp)
             assert old_path != new_path
 
 
-def test_record_recourse(html_fixture, css_fixture):
+def test_record_resource(css_fixture):
     with tempfile.TemporaryDirectory() as tmp:
-        test_obj = Downloaders(TEST_LINK, tmp, html_fixture)
         data = css_fixture
-        path = test_obj.record_resources('link', 'test_folder', data)
+        path = _record_resources('link', 'test-link.css', data, tmp)
         temp_css_file = read_text_data(path)
+        path_to_css_file = os.path.join(tmp, 'test-link.css')
+        assert os.path.isfile(path_to_css_file)
         assert temp_css_file == css_fixture
 
 
 @pytest.mark.parametrize('file, input_value, expected',
-                         [('fixture_for_img.html', 'img', 1),
-                          ('fixture_for_link.html', 'link', 2),
-                          ('fixture_for_script.html', 'script', 2)]
+                         [('fixture_for_img.html', TagType.IMG, 1),
+                          ('fixture_for_link.html', TagType.LINK, 2),
+                          ('fixture_for_script.html', TagType.SCRIPT, 1)]
                          )
-def test_resource_lst(file, input_value, expected):
+def test_resource_set(file, input_value, expected):
     with tempfile.TemporaryDirectory() as tmp:
         test_data = read_text_data(os.path.join(PATH, file))
-        test_obj = Downloaders(TEST_LINK, tmp, test_data)
-        assert len(test_obj.get_resources_lst(
-            test_obj.tags[input_value])) == expected
+        download_information = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp)
+        test_obj = Downloaders(download_information, test_data)
+        assert len(test_obj.get_resources_lst(input_value)) == expected
 
 
-@pytest.mark.parametrize('tag, res_path, expected,',
-                         [('img', '/test/path.svg', False),
-                          ('img', 'http://test.com/test/path.png', True),
-                          ('link', 'https://ru.test.com', False),
-                          ('script', '/hello/test/script.js', True)]
+@pytest.mark.parametrize('index, tag_name, tag_attr, expected,',
+                         [(0, 'img', 'src', 1),
+                          (1, 'link', 'href', 2),
+                          (2, 'script', 'src', 1)]
                          )
-def test_checker(tag, res_path, expected):
-    assert checker(tag, res_path, TEST_LINK) is expected
+def test_checker(index, tag_name, tag_attr, expected, test_bs_object):
+    resource_set = test_bs_object[index]
+    result_set = _checker(resource_set, tag_name, tag_attr, TEST_LINK)
+    assert len(result_set) == expected
 
 
 @pytest.mark.parametrize('link, expected',
@@ -108,10 +107,10 @@ def test_checker(tag, res_path, expected):
                           ('test/file/path',
                            'folder_files/test-file-path.html')]
                          )
-def test_make_save_path(link, expected):
+def test_build_path_to_swap_in_html(link, expected):
     test_obj = PathBuilder(link)
     folder = 'main/folder_files'
-    assert test_obj.make_save_path(folder) == expected
+    assert test_obj.build_path_to_swap_in_html(folder) == expected
 
 
 @pytest.mark.parametrize('link, file_path, expected',
