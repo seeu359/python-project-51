@@ -2,7 +2,6 @@ import os
 import pytest
 from bs4 import BeautifulSoup
 from page_loader.downloaders import Downloaders
-from page_loader.link_handling import PathBuilder
 import requests_mock
 import tempfile
 from page_loader.dataclasses import DownloadInformation
@@ -24,21 +23,17 @@ def read_text_data(path):
     return file
 
 
-@pytest.fixture
-def _test_main_obj():
-    with tempfile.TemporaryDirectory() as tmp:
-        test_download_info = DownloadInformation(TEST_LINK, path_to_save_directory=tmp)
-        return test_download_info, tmp
-
-
 @pytest.fixture()
 def get_link_data_fixture():
-    with tempfile.TemporaryDirectory() as tmp:
-        test_main_obj = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp)
+    with tempfile.TemporaryDirectory() as tmp_dir:
         with requests_mock.Mocker() as mock:
             data = read_text_data(os.path.join(PATH, 'fixture_for_img.html'))
+            test_main_obj = DownloadInformation(
+                webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
+                webpage_data=data, path_to_resources_directory=tmp_dir,
+                path_to_main_html=tmp_dir)
             mock.get(TEST_LINK, text='test')
-            test_obj = Downloaders(test_main_obj, data)
+            test_obj = Downloaders(test_main_obj)
             return test_obj.get_text_data(TEST_LINK)
 
 

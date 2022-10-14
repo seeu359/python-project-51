@@ -4,7 +4,8 @@ import pathlib
 import tempfile
 import requests
 import os
-from page_loader.downloaders import Downloaders, _checker, _change_path_in_html, _record_resources
+from page_loader.downloaders import Downloaders, _checker, \
+    _change_path_in_html, _record_resources
 from page_loader.file_handling import FileWorker
 from page_loader.link_handling import PathBuilder
 from page_loader.loader import download
@@ -45,13 +46,17 @@ def test_get_link_data(get_link_data_fixture):
 def test_get_image_data(html_fixture):
     with tempfile.TemporaryDirectory() as tmp_dir:
         with requests_mock.Mocker() as mock:
-            test_download_info = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp_dir)
-            test_main_obj = Downloaders(test_download_info, html_fixture)
+            test_download_info = DownloadInformation(
+                webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
+                webpage_data=html_fixture, path_to_resources_directory=tmp_dir,
+                path_to_main_html=tmp_dir)
+            test_main_obj = Downloaders(test_download_info)
             content = read_picture(os.path.join(PATH, 'image_fixture.png'))
             mock.get(TEST_LINK, content=content)
             image_data = test_main_obj.get_image_data(TEST_LINK)
             path = pathlib.Path(tmp_dir, 'test.png')
-            recording_data = RecordingData(data=image_data, path_to_save_data=str(path))
+            recording_data = RecordingData(data=image_data,
+                                           path_to_save_data=str(path))
             file_worker = FileWorker(recording_data)
             file_worker.record_image()
             image = read_picture(path)
@@ -82,11 +87,14 @@ def test_record_resource(css_fixture):
                           ('fixture_for_link.html', TagType.LINK, 2),
                           ('fixture_for_script.html', TagType.SCRIPT, 1)]
                          )
-def test_resource_set(file, input_value, expected):
-    with tempfile.TemporaryDirectory() as tmp:
+def test_get_resources_set(file, input_value, expected):
+    with tempfile.TemporaryDirectory() as tmp_dir:
         test_data = read_text_data(os.path.join(PATH, file))
-        download_information = DownloadInformation(link=TEST_LINK, path_to_save_directory=tmp)
-        test_obj = Downloaders(download_information, test_data)
+        download_information = DownloadInformation(
+            webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
+            webpage_data=test_data, path_to_resources_directory=tmp_dir,
+            path_to_main_html=tmp_dir)
+        test_obj = Downloaders(download_information)
         assert len(test_obj.get_resources_lst(input_value)) == expected
 
 

@@ -3,7 +3,7 @@ install:
 	poetry build
 	python3 -m pip install --user --force-reinstall dist/*.whl
 
-install_venv:
+install-venv:
 	poetry install
 	poetry build
 	python3 -m pip install --force-reinstall dist/*.whl
