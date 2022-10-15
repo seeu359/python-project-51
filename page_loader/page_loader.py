@@ -1,9 +1,9 @@
 import logging
 import os
-from page_loader.downloaders import Downloaders
-from page_loader.link_handling import PathBuilder
+from page_loader.core.downloaders import Downloaders
+from page_loader.core.link_handling import PathBuilder
 import requests
-from page_loader.dataclasses import DownloadInformation, FileSuffixes
+from page_loader.core.dataclasses import DownloadInformation, FileSuffixes
 from page_loader.exceptions import PageNotAvailableError
 from typing import Literal, Callable
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 import sys
-from page_loader.loader import download
+from page_loader.page_loader import download
 from page_loader.cli import get_parser_args
 from page_loader.exceptions import MissingSchemaError, ImageDownloadingError, \
     TextDataDownloadingError, PageNotAvailableError

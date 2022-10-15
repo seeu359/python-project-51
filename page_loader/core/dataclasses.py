@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import NamedTuple
+from typing import Literal
 
 
 @dataclass
@@ -9,6 +11,12 @@ class DownloadInformation:
     webpage_data: str
     path_to_resources_directory: str
     path_to_main_html: str
+
+
+class ArgumentParser(NamedTuple):
+    link: Literal['link']
+    save_directory_short: Literal['-o']
+    save_directory_long: Literal['--output']
 
 
 @dataclass

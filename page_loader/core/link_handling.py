@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import furl
 import re
 import os
@@ -11,23 +11,23 @@ FORMAT_FILE = '.html'
 
 class PathBuilder:
 
-    def __init__(self, webpage_link):
+    def __init__(self, webpage_link: str):
         self.webpage_link = webpage_link
         self.parse_link = urlparse(webpage_link)
         self.link_body, self.extension = os.path.splitext(webpage_link)
         self.processed_link = re.sub('http://|https://', '',
                                      self.link_body)
 
-    def build_path_to_swap_in_html(self, save_folder) -> str:
+    def build_path_to_swap_in_html(self, save_folder: str) -> str:
         if not self.extension:
             self.extension = FORMAT_FILE
-        replace_symbols_in_link = re.sub(r'[^a-zA-Z\d]', '-',
-                                         self.processed_link)
+        replace_symbols_in_link = self.replace_dash(self.processed_link)
         pure_path = pathlib.PurePath(save_folder).name
         return os.path.join(pure_path,
                             replace_symbols_in_link) + self.extension
 
-    def build_link(self, file_path):
+    def build_resource_link(self, file_path: str) -> str:
+        """Build resource link for download"""
         parse_img_path = urlparse(file_path)
         if parse_img_path.scheme:
             return file_path
@@ -36,12 +36,19 @@ class PathBuilder:
         collected_link = furl.furl(link_body).add(path=file_path)
         return str(collected_link)
 
-    def format_webpage_link(self):
-        link_netloc = urlparse(self.webpage_link).netloc
-        format_link = re.sub(r'[^a-zA-Z\d]', '-', link_netloc)
+    def format_webpage_link(self) -> str:
+        link_path = urlparse(self.webpage_link).path
+        constructed_link = urljoin(self.webpage_link, link_path)
+        replace_scheme = re.sub('http://|https://', '', constructed_link)
+        format_link = self.replace_dash(replace_scheme)
         return format_link
 
-    def check_link(self):
+    @staticmethod
+    def replace_dash(link: str) -> str:
+        format_link = re.sub(r'[^a-zA-Z\d]', '-', link)
+        return format_link
+
+    def check_link(self) -> None:
         if not self.parse_link.scheme:
             logging.error(f'Missing scheme! Link - {self.webpage_link}')
             raise MissingSchemaError

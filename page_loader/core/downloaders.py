@@ -1,11 +1,12 @@
 import requests
 import os
 import logging
-from bs4 import BeautifulSoup, ResultSet
+from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
-from page_loader.file_handling import FileWorker
-from page_loader.link_handling import PathBuilder
-from page_loader.dataclasses import DownloadInformation, RecordingData, TagType
+from page_loader.core.file_handling import FileWorker
+from page_loader.core.link_handling import PathBuilder
+from page_loader.core.dataclasses import DownloadInformation, RecordingData, \
+    TagType
 from progress.bar import ShadyBar
 from page_loader.exceptions import ImageDownloadingError, \
     TextDataDownloadingError
@@ -58,7 +59,8 @@ class Downloaders:
                 as bar:
             for res in resources_list:
                 resource = res[tag_attr]
-                link = PathBuilder(self.webpage_link).build_link(resource)
+                link = PathBuilder(self.webpage_link).build_resource_link(
+                    resource)
                 resource_data = resource_loader(link)
                 local_resource_path = _change_path_in_html(
                     link, res, tag_attr, self.path_to_resources_directory)
@@ -79,30 +81,31 @@ class Downloaders:
 
 def _checker(resources_list: ResultSet, tag_name: str, tag_attr: str,
              webpage_link: str) -> ResultSet:
+    processed_set = ResultSet(SoupStrainer())
     if tag_name == 'img':
         for resource in resources_list:
             resource_path = resource[tag_attr]
-            if not all((_check_image_extension(resource_path),
-                        _check_domain(resource_path, webpage_link))):
-                resources_list.remove(resource)
-    elif tag_name != 'img':
+            if all((_check_image_extension(resource_path),
+                    _is_true_domain(resource_path, webpage_link))):
+                processed_set.append(resource)
+    else:
         for resource in resources_list:
             resource_path = resource[tag_attr]
-            if not _check_domain(resource_path, webpage_link):
-                resources_list.remove(resource)
-    return resources_list
+            if _is_true_domain(resource_path, webpage_link):
+                processed_set.append(resource)
+    return processed_set
 
 
-def _check_image_extension(path):
+def _check_image_extension(path: str) -> bool:
     _, extension = os.path.splitext(path)
     if extension == '.png' or extension == '.jpeg':
         return True
     return False
 
 
-def _check_domain(resource_link, web_page):
+def _is_true_domain(resource_link: str, webpage_link: str) -> bool:
     picture_link_parse = urlparse(resource_link)
-    web_page_parse = urlparse(web_page)
+    web_page_parse = urlparse(webpage_link)
     if not picture_link_parse.scheme:
         return True
     return True if web_page_parse.netloc == picture_link_parse.netloc \

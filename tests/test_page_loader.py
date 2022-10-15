@@ -4,14 +4,16 @@ import pathlib
 import tempfile
 import requests
 import os
-from page_loader.downloaders import Downloaders, _checker, \
+from page_loader.core.downloaders import Downloaders, _checker, \
     _change_path_in_html, _record_resources
-from page_loader.file_handling import FileWorker
-from page_loader.link_handling import PathBuilder
-from page_loader.loader import download
-from page_loader.dataclasses import RecordingData, DownloadInformation, TagType
+from page_loader.core.file_handling import FileWorker
+from page_loader.core.link_handling import PathBuilder
+from page_loader.page_loader import download
+from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
+    TagType
 
 TEST_LINK = 'http://test.com'
+TEST_LINK2 = 'https://ru.hexlet.io/courses'
 PATH = 'tests/fixtures'
 
 
@@ -103,9 +105,9 @@ def test_get_resources_set(file, input_value, expected):
                           (1, 'link', 'href', 2),
                           (2, 'script', 'src', 1)]
                          )
-def test_checker(index, tag_name, tag_attr, expected, test_bs_object):
+def test_is_true_domain(index, tag_name, tag_attr, expected, test_bs_object):
     resource_set = test_bs_object[index]
-    result_set = _checker(resource_set, tag_name, tag_attr, TEST_LINK)
+    result_set = _checker(resource_set, tag_name, tag_attr, TEST_LINK2)
     assert len(result_set) == expected
 
 
@@ -129,4 +131,4 @@ def test_build_path_to_swap_in_html(link, expected):
                          )
 def test_build_link(link, file_path, expected):
     test_obj = PathBuilder(link)
-    assert test_obj.build_link(file_path) == expected
+    assert test_obj.build_resource_link(file_path) == expected

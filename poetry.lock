@@ -121,6 +121,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "mc-bin-client"
+version = "1.0.1"
+description = "Binary memcached client"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "mccabe"
 version = "0.7.0"
 description = "McCabe checker, plugin for flake8"
@@ -291,6 +299,17 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "tap"
+version = "0.2"
+description = "/dev/null as TAP consumer"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+mc_bin_client = "*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -314,7 +333,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "bf65baccd8a4c149b587b301e4fa1b2c4d42d112f642877a4e78fd364cacfa48"
+content-hash = "13476be74c0559a89900bf6858a1a14d391f551433b8d2a3630168e25ee3327d"
 
 [metadata.files]
 attrs = [
@@ -408,6 +427,9 @@ iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
+mc-bin-client = [
+    {file = "mc_bin_client-1.0.1.tar.gz", hash = "sha256:657192115c7e760c207938ca415e885e7119333fc70e880e50d76c89a4e73438"},
+]
 mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
@@ -466,6 +488,9 @@ six = [
 soupsieve = [
     {file = "soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
     {file = "soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
+]
+tap = [
+    {file = "tap-0.2.tar.gz", hash = "sha256:f4d0466eb0af7402b9d2c813b044f11e6cac1a32cec9bd1b4c5b7a096ca5fbf1"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},

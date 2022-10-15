@@ -1,10 +1,10 @@
 import os
 import pytest
 from bs4 import BeautifulSoup
-from page_loader.downloaders import Downloaders
+from page_loader.core.downloaders import Downloaders
 import requests_mock
 import tempfile
-from page_loader.dataclasses import DownloadInformation
+from page_loader.core.dataclasses import DownloadInformation
 
 PATH = 'tests/fixtures'
 TEST_LINK = 'http://test.com'
