@@ -27,12 +27,12 @@ class Downloaders:
         self.parse_data = BeautifulSoup(self.webpage_data, 'html.parser')
 
     @staticmethod
-    def get_image_data(link: str) -> requests.models.Response:
+    def get_image_data(link: str) -> bytes:
         request_status_code = requests.get(link).status_code
         if request_status_code != 200:
             logging.error(f'Downloading Image Error. Image link: {link}')
             raise ImageDownloadingError
-        return requests.get(link, stream=True)
+        return requests.get(link).content
 
     @staticmethod
     def get_text_data(link: str) -> str:
@@ -52,20 +52,22 @@ class Downloaders:
 
     def download_resources(self, tag: TagType) -> None:
         tag_name, tag_attr, tag_message = tag.value
-        resource_loader = self.get_image_data if tag_name == 'img' else \
-            self.get_text_data
         resources_list = self.get_resources_lst(tag)
         with ShadyBar(f'Downloading {tag_message}:', max=len(resources_list)) \
                 as bar:
             for res in resources_list:
                 resource = res[tag_attr]
+                _, extension = os.path.splitext(resource)
+                resource_loader = self.get_image_data if \
+                    extension in ('.jpeg', '.jpg', '.png', '.css') \
+                    else self.get_text_data
                 link = PathBuilder(self.webpage_link).build_resource_link(
                     resource)
                 resource_data = resource_loader(link)
                 local_resource_path = _change_path_in_html(
                     link, res, tag_attr, self.path_to_resources_directory)
                 _record_resources(tag_name, local_resource_path, resource_data,
-                                  self.path_to_save_directory)
+                                  self.path_to_save_directory, extension)
                 bar.next()
 
     def download_all(self) -> None:
@@ -76,7 +78,7 @@ class Downloaders:
         recording_data = RecordingData(
             data=self.parse_data.prettify(),
             path_to_save_data=self.path_to_main_html)
-        FileWorker(recording_data).record_html()
+        FileWorker(recording_data, '.html').record_html()
 
 
 def _checker(resources_list: ResultSet, tag_name: str, tag_attr: str,
@@ -121,11 +123,11 @@ def _change_path_in_html(link: str, resource: ResultSet, tag_attr: str,
 
 def _record_resources(tag_name: str, local_resource_path: str,
                       data: str | requests.models.Response,
-                      save_folder: str) -> str:
+                      save_folder: str, extension) -> str:
     path_to_save_data = os.path.join(save_folder, local_resource_path)
     recording_data = RecordingData(data=data,
                                    path_to_save_data=path_to_save_data)
-    _file_worker = FileWorker(recording_data)
+    _file_worker = FileWorker(recording_data, extension)
     recorder = _file_worker.record_image if tag_name == 'img' else \
         _file_worker.record_resource
     recorder()
