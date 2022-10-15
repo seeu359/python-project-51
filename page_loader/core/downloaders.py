@@ -32,7 +32,8 @@ class Downloaders:
         if request_status_code != 200:
             logging.error(f'Downloading Image Error. Image link: {link}')
             raise ImageDownloadingError
-        return requests.get(link).content
+        content = requests.get(link).content
+        return content
 
     @staticmethod
     def get_text_data(link: str) -> str:
@@ -127,8 +128,9 @@ def _record_resources(tag_name: str, local_resource_path: str,
     path_to_save_data = os.path.join(save_folder, local_resource_path)
     recording_data = RecordingData(data=data,
                                    path_to_save_data=path_to_save_data)
-    _file_worker = FileWorker(recording_data, extension)
-    recorder = _file_worker.record_image if tag_name == 'img' else \
+    _file_worker = FileWorker(recording_data)
+    recorder = _file_worker.record_image if \
+        extension in ('.png', '.jpeg', '.jpg', '.css') else \
         _file_worker.record_resource
     recorder()
     return path_to_save_data

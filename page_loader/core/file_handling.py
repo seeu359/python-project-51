@@ -4,13 +4,9 @@ FORMAT_FILE = '.html'
 
 class FileWorker:
 
-    def __init__(self, recording_data: RecordingData, extension):
+    def __init__(self, recording_data: RecordingData):
         self.path_to_save_data = recording_data.path_to_save_data
-        self.extension = extension
-        if extension == '.css':
-            self.data = str(recording_data.data)
-        else:
-            self.data = recording_data.data
+        self.data = recording_data.data
 
     def record_image(self) -> None:
         with open(self.path_to_save_data, 'wb') as image:
