@@ -67,7 +67,7 @@ class Downloaders:
                 resource_data = resource_loader(link)
                 local_resource_path = _change_path_in_html(
                     link, res, tag_attr, self.path_to_resources_directory)
-                _record_resources(tag_name, local_resource_path, resource_data,
+                _record_resources(local_resource_path, resource_data,
                                   self.path_to_save_directory, extension)
                 bar.next()
 
@@ -79,7 +79,7 @@ class Downloaders:
         recording_data = RecordingData(
             data=self.parse_data.prettify(),
             path_to_save_data=self.path_to_main_html)
-        FileWorker(recording_data, '.html').record_html()
+        FileWorker(recording_data).record_html()
 
 
 def _checker(resources_list: ResultSet, tag_name: str, tag_attr: str,
@@ -122,7 +122,7 @@ def _change_path_in_html(link: str, resource: ResultSet, tag_attr: str,
     return path
 
 
-def _record_resources(tag_name: str, local_resource_path: str,
+def _record_resources(local_resource_path: str,
                       data: str | requests.models.Response,
                       save_folder: str, extension) -> str:
     path_to_save_data = os.path.join(save_folder, local_resource_path)
