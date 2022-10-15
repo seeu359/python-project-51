@@ -98,7 +98,7 @@ def _checker(resources_list: ResultSet, tag_name: str, tag_attr: str,
 
 def _check_image_extension(path: str) -> bool:
     _, extension = os.path.splitext(path)
-    if extension == '.png' or extension == '.jpeg':
+    if extension == '.png' or extension in ('.jpeg', '.jpg'):
         return True
     return False
 
