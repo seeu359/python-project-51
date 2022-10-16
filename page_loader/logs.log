@@ -1,29 +1,8 @@
-INFO :: 16-10-2022 15:45:14 :: App started
-DEBUG :: 16-10-2022 15:45:14 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:15 :: https://pythonworld.ru:443 "GET / HTTP/1.1" 200 None
-INFO :: 16-10-2022 15:45:15 :: Creating a folder for local resources
-INFO :: 16-10-2022 15:45:15 :: The directory already exists
-DEBUG :: 16-10-2022 15:45:15 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:15 :: https://pythonworld.ru:443 "GET /m/img/python-3.png HTTP/1.1" 200 3546
-DEBUG :: 16-10-2022 15:45:15 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:15 :: https://pythonworld.ru:443 "GET /m/img/python-3.png HTTP/1.1" 200 3546
-DEBUG :: 16-10-2022 15:45:15 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:15 :: https://pythonworld.ru:443 "GET /m/mistypes/images/mistypes.png HTTP/1.1" 200 665
-DEBUG :: 16-10-2022 15:45:15 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:16 :: https://pythonworld.ru:443 "GET /m/mistypes/images/mistypes.png HTTP/1.1" 200 665
-DEBUG :: 16-10-2022 15:45:16 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:16 :: https://pythonworld.ru:443 "GET /m/css/st.css HTTP/1.1" 200 26292
-DEBUG :: 16-10-2022 15:45:16 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:16 :: https://pythonworld.ru:443 "GET /m/css/st.css HTTP/1.1" 200 26292
-DEBUG :: 16-10-2022 15:45:16 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:17 :: https://pythonworld.ru:443 "GET /m/js/jquery-3.6.0.min.js HTTP/1.1" 200 89501
-DEBUG :: 16-10-2022 15:45:17 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:17 :: https://pythonworld.ru:443 "GET /m/js/jquery-3.6.0.min.js HTTP/1.1" 200 89501
-DEBUG :: 16-10-2022 15:45:17 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:18 :: https://pythonworld.ru:443 "GET /m/js/nav.js HTTP/1.1" 200 3454
-DEBUG :: 16-10-2022 15:45:18 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:18 :: https://pythonworld.ru:443 "GET /m/js/nav.js HTTP/1.1" 200 3454
-DEBUG :: 16-10-2022 15:45:18 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:18 :: https://pythonworld.ru:443 "GET /m/mistypes/mistypes.js HTTP/1.1" 200 1449
-DEBUG :: 16-10-2022 15:45:18 :: Starting new HTTPS connection (1): pythonworld.ru:443
-DEBUG :: 16-10-2022 15:45:18 :: https://pythonworld.ru:443 "GET /m/mistypes/mistypes.js HTTP/1.1" 200 1449
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+INFO :: 16-10-2022 17:09:59 :: Creating a folder for local resources
+INFO :: 16-10-2022 17:09:59 :: The directory has been created
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200

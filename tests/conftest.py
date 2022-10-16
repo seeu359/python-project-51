@@ -11,7 +11,7 @@ TEST_LINK = 'http://test.com'
 TEST_FILE_PATH = 'test/file/path.png'
 
 
-def read_picture(path):
+def read_bytes_data(path):
     with open(path, 'rb') as f:
         file = f.read()
     return file
@@ -63,7 +63,7 @@ def test_bs_object():
 @pytest.fixture()
 def css_fixture():
     path = os.path.join(PATH, 'fixture_css_stylesheet.css')
-    return read_text_data(path)
+    return read_bytes_data(path)
 
 
 @pytest.fixture()

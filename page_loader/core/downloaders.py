@@ -124,7 +124,7 @@ def _change_path_in_html(link: str, resource: ResultSet, tag_attr: str,
 
 def _record_resources(local_resource_path: str,
                       data: str | requests.models.Response,
-                      save_folder: str, extension) -> str:
+                      save_folder: str, extension: str):
     path_to_save_data = os.path.join(save_folder, local_resource_path)
     recording_data = RecordingData(data=data,
                                    path_to_save_data=path_to_save_data)
@@ -133,4 +133,3 @@ def _record_resources(local_resource_path: str,
         extension in ('.png', '.jpeg', '.jpg', '.css') else \
         _file_worker.record_resource
     recorder()
-    return path_to_save_data

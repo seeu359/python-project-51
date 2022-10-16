@@ -17,7 +17,7 @@ TEST_LINK2 = 'https://ru.hexlet.io/courses'
 PATH = 'tests/fixtures'
 
 
-def read_picture(path):
+def read_bytes_data(path):
     with open(path, 'rb') as f:
         file = f.read()
     return file
@@ -53,7 +53,7 @@ def test_get_image_data(html_fixture):
                 webpage_data=html_fixture, path_to_resources_directory=tmp_dir,
                 path_to_main_html=tmp_dir)
             test_main_obj = Downloaders(test_download_info)
-            content = read_picture(os.path.join(PATH, 'image_fixture.png'))
+            content = read_bytes_data(os.path.join(PATH, 'image_fixture.png'))
             mock.get(TEST_LINK, content=content)
             image_data = test_main_obj.get_image_data(TEST_LINK)
             path = pathlib.Path(tmp_dir, 'test.png')
@@ -61,7 +61,7 @@ def test_get_image_data(html_fixture):
                                            path_to_save_data=str(path))
             file_worker = FileWorker(recording_data)
             file_worker.record_image()
-            image = read_picture(path)
+            image = read_bytes_data(path)
             assert image == requests.get(TEST_LINK).content
 
 
@@ -74,14 +74,20 @@ def test_change_path_in_html(test_bs_object):
             assert old_path != new_path
 
 
-def test_record_resource(css_fixture):
+@pytest.mark.parametrize('extension, reader, path',
+                         [('.css', read_bytes_data,
+                           os.path.join(PATH, 'fixture_css_stylesheet.css')),
+                          ('.html', read_text_data,
+                           os.path.join(PATH, 'fixture_page.html'))])
+def test_record_resource(extension, reader, path):
     with tempfile.TemporaryDirectory() as tmp:
-        data = css_fixture
-        path = _record_resources('link', 'test-link.css', data, tmp)
-        temp_css_file = read_text_data(path)
-        path_to_css_file = os.path.join(tmp, 'test-link.css')
-        assert os.path.isfile(path_to_css_file)
-        assert temp_css_file == css_fixture
+        fixture_data = reader(path)
+        local_resource_path = 'test_path.ext'
+        _record_resources(local_resource_path, fixture_data, tmp, extension)
+        test_file = reader(os.path.join(tmp, local_resource_path))
+        path_to_file = os.path.join(tmp, local_resource_path)
+        assert os.path.isfile(path_to_file)
+        assert test_file == fixture_data
 
 
 @pytest.mark.parametrize('file, input_value, expected',
