@@ -103,7 +103,7 @@ def _resources_validator(resources_list: ResultSet,
 
 def _check_image_extension(path: str) -> bool:
     _, extension = os.path.splitext(path)
-    if extension == '.png' or extension in ('.jpeg', '.jpg'):
+    if extension in ('.png', '.jpeg', '.jpg'):
         return True
     return False
 
