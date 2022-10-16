@@ -118,7 +118,7 @@ def _is_true_domain(resource_link: str, webpage_link: str) -> bool:
 
 
 def _change_path_in_html(link: str, resource: ResultSet,
-                         tag_attr: str, resource_folder) -> str:
+                         tag_attr: str, resource_folder: str) -> str:
     path = PathBuilder(link).build_path_to_swap_in_html(resource_folder)
     resource[tag_attr] = path
     return path
