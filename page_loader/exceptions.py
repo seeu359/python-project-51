@@ -7,6 +7,10 @@ class PageNotAvailableError(Exception):
     pass
 
 
+class DirectoryCreationError(Exception):
+    pass
+
+
 class ImageDownloadingError(Exception):
     pass
 

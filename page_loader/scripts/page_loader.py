@@ -4,7 +4,7 @@ from page_loader.log_config import logger
 from page_loader.loader import download
 from page_loader.cli import get_parser_args
 from page_loader.exceptions import MissingSchemaError, ImageDownloadingError, \
-    TextDataDownloadingError, PageNotAvailableError
+    TextDataDownloadingError, PageNotAvailableError, DirectoryCreationError
 
 
 def main():
@@ -14,8 +14,8 @@ def main():
         print(download(args.link, args.output))
         print('Page was downloaded!')
         sys.exit(0)
-    except FileNotFoundError:
-        print('Cannot create file in this path. The directory does not exist!')
+    except DirectoryCreationError:
+        print('Cannot create file in this path!')
         sys.exit(1)
     except PageNotAvailableError:
         print('Failed to load page!')

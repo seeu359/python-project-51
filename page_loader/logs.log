@@ -1,8 +1,9 @@
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
-INFO :: 16-10-2022 17:09:59 :: Creating a folder for local resources
-INFO :: 16-10-2022 17:09:59 :: The directory has been created
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 17:09:59 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+DEBUG :: 16-10-2022 20:45:06 :: GET http://test.com/ 200
+ERROR :: 16-10-2022 20:45:06 :: No such directory. Error: [Errno 2] No such file or directory: 'test_path/test'
+ERROR :: 16-10-2022 20:45:06 :: Missing scheme! Link - test-link.com
+ERROR :: 16-10-2022 20:45:06 :: Can not create directory. Permission denied!Traceback [Errno 13] Permission denied: '/Users/a.cheremushkin/hello/test'

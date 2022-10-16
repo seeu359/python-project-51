@@ -4,11 +4,12 @@ import pathlib
 import tempfile
 import requests
 import os
+from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
 from page_loader.core.downloaders import Downloaders, _checker, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathBuilder
-from page_loader.loader import download
+from page_loader.loader import download, _make_dir
 from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
     TagType
 
@@ -138,3 +139,19 @@ def test_build_path_to_swap_in_html(link, expected):
 def test_build_link(link, file_path, expected):
     test_obj = PathBuilder(link)
     assert test_obj.build_resource_link(file_path) == expected
+
+
+def test_error_make_dir():
+    with pytest.raises(DirectoryCreationError):
+        _make_dir('test_path/test')
+
+
+def test_error_missing_scheme():
+    with pytest.raises(MissingSchemaError):
+        pathbuilder_obj = PathBuilder('test-link.com')
+        pathbuilder_obj.check_link()
+
+
+def test_error_permission_denied():
+    with pytest.raises(DirectoryCreationError):
+        _make_dir('/Users/a.cheremushkin/hello/test')

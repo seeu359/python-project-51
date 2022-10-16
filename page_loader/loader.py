@@ -1,11 +1,13 @@
 import os
 import requests
+from requests.exceptions import ConnectionError
 from .log_config import logger
 from typing import Literal, Callable
 from page_loader.core.downloaders import Downloaders
 from page_loader.core.link_handling import PathBuilder
 from page_loader.core.dataclasses import DownloadInformation, FileSuffixes
-from page_loader.exceptions import PageNotAvailableError
+from page_loader.exceptions import PageNotAvailableError, \
+    DirectoryCreationError
 
 
 def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
@@ -29,7 +31,11 @@ def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
 
 
 def _make_request_by_link(link: str) -> str:
-    request_by_link = requests.get(link)
+    try:
+        request_by_link = requests.get(link)
+    except ConnectionError as e:
+        logger.error(f'Connection error! Error {e}')
+        raise PageNotAvailableError
     request_status_code = request_by_link.status_code
     if request_status_code in (404, 500):
         logger.error(f'Page not Available error. Status code is '
@@ -40,14 +46,18 @@ def _make_request_by_link(link: str) -> str:
 
 
 def _make_dir(path: str):
-    logger.info('Creating a folder for local resources')
     try:
         os.mkdir(path)
-        logger.info('The directory has been created')
-    except FileExistsError:
-        logger.info('The directory already exists')
-    except FileNotFoundError:
-        logger.error('No such directory')
+    except PermissionError as e:
+        logger.error(f'Can not create directory. Permission denied!'
+                     f'Error: {e}')
+        raise DirectoryCreationError
+    except FileExistsError as e:
+        logger.error(f'The directory already exists. Error: {e}')
+        raise DirectoryCreationError
+    except FileNotFoundError as e:
+        logger.error(f'No such directory. Error: {e}')
+        raise DirectoryCreationError
 
 
 def _get_path_to_main_files(function: Callable) -> Callable:
