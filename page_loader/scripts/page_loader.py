@@ -1,21 +1,14 @@
 #!/usr/bin/env python
-import logging
 import sys
-from page_loader.page_loader import download
+from page_loader.log_config import logger
+from page_loader.loader import download
 from page_loader.cli import get_parser_args
 from page_loader.exceptions import MissingSchemaError, ImageDownloadingError, \
     TextDataDownloadingError, PageNotAvailableError
 
 
-logging.basicConfig(format='%(levelname)s :: %(asctime)s :: %(message)s',
-                    datefmt='%d-%m-%Y %H:%M:%S',
-                    filename='/Users/a.cheremushkin/PythonProjects/'
-                             'python-project-51/page_loader/logs.log',
-                    level=logging.DEBUG)
-
-
 def main():
-    logging.info('App started')
+    logger.info('App started')
     args = get_parser_args()
     try:
         print(download(args.link, args.output))

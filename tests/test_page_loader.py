@@ -8,7 +8,7 @@ from page_loader.core.downloaders import Downloaders, _checker, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathBuilder
-from page_loader.page_loader import download
+from page_loader.loader import download
 from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
     TagType
 

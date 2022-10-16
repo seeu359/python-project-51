@@ -1,9 +1,9 @@
-import logging
-from urllib.parse import urlparse, urljoin
 import furl
 import re
 import os
 import pathlib
+from page_loader.log_config import logger
+from urllib.parse import urlparse, urljoin
 from page_loader.exceptions import MissingSchemaError
 
 FORMAT_FILE = '.html'
@@ -50,5 +50,5 @@ class PathBuilder:
 
     def check_link(self) -> None:
         if not self.parse_link.scheme:
-            logging.error(f'Missing scheme! Link - {self.webpage_link}')
+            logger.error(f'Missing scheme! Link - {self.webpage_link}')
             raise MissingSchemaError

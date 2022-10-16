@@ -1,11 +1,11 @@
-import logging
 import os
+import requests
+from .log_config import logger
+from typing import Literal, Callable
 from page_loader.core.downloaders import Downloaders
 from page_loader.core.link_handling import PathBuilder
-import requests
 from page_loader.core.dataclasses import DownloadInformation, FileSuffixes
 from page_loader.exceptions import PageNotAvailableError
-from typing import Literal, Callable
 
 
 def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
@@ -32,22 +32,22 @@ def _make_request_by_link(link: str) -> str:
     request_by_link = requests.get(link)
     request_status_code = request_by_link.status_code
     if request_status_code in (404, 500):
-        logging.error(f'Page not Available error. Status code is '
-                      f'{request_status_code}')
+        logger.error(f'Page not Available error. Status code is '
+                     f'{request_status_code}')
         raise PageNotAvailableError
     webpage_data = request_by_link.text
     return webpage_data
 
 
 def _make_dir(path: str):
-    logging.info('Creating a folder for local resources')
+    logger.info('Creating a folder for local resources')
     try:
         os.mkdir(path)
-        logging.info('The directory has been created')
+        logger.info('The directory has been created')
     except FileExistsError:
-        logging.info('The directory already exists')
+        logger.info('The directory already exists')
     except FileNotFoundError:
-        logging.error('No such directory')
+        logger.error('No such directory')
 
 
 def _get_path_to_main_files(function: Callable) -> Callable:

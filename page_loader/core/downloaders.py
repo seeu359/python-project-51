@@ -1,6 +1,6 @@
 import requests
 import os
-import logging
+from page_loader.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
 from page_loader.core.file_handling import FileWorker
@@ -30,7 +30,7 @@ class Downloaders:
     def get_image_data(link: str) -> bytes:
         request_status_code = requests.get(link).status_code
         if request_status_code != 200:
-            logging.error(f'Downloading Image Error. Image link: {link}')
+            logger.error(f'Downloading Image Error. Image link: {link}')
             raise ImageDownloadingError
         content = requests.get(link).content
         return content
@@ -39,8 +39,8 @@ class Downloaders:
     def get_text_data(link: str) -> str:
         request_status_code = requests.get(link).status_code
         if request_status_code != 200:
-            logging.error(f'Text Data Downloading Error. '
-                          f'Resource link: {link}')
+            logger.error(f'Text Data Downloading Error. '
+                         f'Resource link: {link}')
             raise TextDataDownloadingError
         return requests.get(link).text
 
