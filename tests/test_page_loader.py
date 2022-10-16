@@ -5,16 +5,18 @@ import tempfile
 import requests
 import os
 from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
-from page_loader.core.downloaders import Downloaders, _checker, \
+from page_loader.core.downloaders import Downloaders, _resources_validator, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathBuilder
 from page_loader.loader import download, _make_dir
 from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
-    TagType
+    ImgTag, ScriptTag, LinkTag
+from page_loader.loader import _make_request_by_link
 
 TEST_LINK = 'http://test.com'
 TEST_LINK2 = 'https://ru.hexlet.io/courses'
+TEST_LINK3 = 'https://ru.hexlet.io'
 PATH = 'tests/fixtures'
 
 
@@ -51,12 +53,13 @@ def test_get_image_data(html_fixture):
         with requests_mock.Mocker() as mock:
             test_download_info = DownloadInformation(
                 webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
-                webpage_data=html_fixture, path_to_resources_directory=tmp_dir,
+                path_to_resources_directory=tmp_dir,
                 path_to_main_html=tmp_dir)
-            test_main_obj = Downloaders(test_download_info)
             content = read_bytes_data(os.path.join(PATH, 'image_fixture.png'))
             mock.get(TEST_LINK, content=content)
-            image_data = test_main_obj.get_image_data(TEST_LINK)
+            test_main_obj = Downloaders(test_download_info,
+                                        _make_request_by_link(TEST_LINK))
+            image_data = test_main_obj.get_bytes_data(TEST_LINK)
             path = pathlib.Path(tmp_dir, 'test.png')
             recording_data = RecordingData(data=image_data,
                                            path_to_save_data=str(path))
@@ -91,30 +94,33 @@ def test_record_resource(extension, reader, path):
         assert test_file == fixture_data
 
 
-@pytest.mark.parametrize('file, input_value, expected',
-                         [('fixture_for_img.html', TagType.IMG, 1),
-                          ('fixture_for_link.html', TagType.LINK, 2),
-                          ('fixture_for_script.html', TagType.SCRIPT, 1)]
+@pytest.mark.parametrize('tag, expected',
+                         [(ImgTag, 1),
+                          (LinkTag, 2),
+                          (ScriptTag, 1)]
                          )
-def test_get_resources_set(file, input_value, expected):
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        test_data = read_text_data(os.path.join(PATH, file))
-        download_information = DownloadInformation(
-            webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
-            webpage_data=test_data, path_to_resources_directory=tmp_dir,
-            path_to_main_html=tmp_dir)
-        test_obj = Downloaders(download_information)
-        assert len(test_obj.get_resources_lst(input_value)) == expected
+def test_get_resources_set(tag, expected, html_fixture):
+    with requests_mock.Mocker() as mock:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            download_information = DownloadInformation(
+                webpage_link=TEST_LINK3, path_to_save_directory=tmp_dir,
+                path_to_resources_directory=tmp_dir,
+                path_to_main_html=tmp_dir)
+            mock.get(TEST_LINK3, text=html_fixture)
+            test_obj = Downloaders(download_information,
+                                   _make_request_by_link(TEST_LINK3))
+            assert len(test_obj.get_resources_lst(tag)) == expected
 
 
 @pytest.mark.parametrize('index, tag_name, tag_attr, expected,',
-                         [(0, 'img', 'src', 1),
-                          (1, 'link', 'href', 2),
-                          (2, 'script', 'src', 1)]
+                         [(0, ImgTag.name, ImgTag.attr, 1),
+                          (1, LinkTag.name, LinkTag.attr, 2),
+                          (2, ScriptTag.name, ScriptTag.attr, 1)]
                          )
 def test_is_true_domain(index, tag_name, tag_attr, expected, test_bs_object):
     resource_set = test_bs_object[index]
-    result_set = _checker(resource_set, tag_name, tag_attr, TEST_LINK2)
+    result_set = _resources_validator(resource_set, tag_name, tag_attr,
+                                      TEST_LINK2)
     assert len(result_set) == expected
 
 

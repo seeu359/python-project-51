@@ -5,10 +5,13 @@ from typing import Literal
 
 
 @dataclass
-class DownloadInformation:
+class Webpage:
+    webpage: str
+
+
+class DownloadInformation(NamedTuple):
     webpage_link: str
     path_to_save_directory: str
-    webpage_data: str
     path_to_resources_directory: str
     path_to_main_html: str
 
@@ -19,16 +22,28 @@ class ArgumentParser(NamedTuple):
     save_directory_long: Literal['--output']
 
 
-@dataclass
-class RecordingData:
+class RecordingData(NamedTuple):
+
     data: str or bytes
     path_to_save_data: str
 
 
-class TagType(Enum):
-    IMG = ('img', 'src', 'images')
-    LINK = ('link', 'href', 'links')
-    SCRIPT = ('script', 'src', 'scripts')
+class ImgTag(NamedTuple):
+    name = 'img'
+    attr = 'src'
+    message = 'images'
+
+
+class LinkTag(NamedTuple):
+    name = 'link'
+    attr = 'href'
+    message = 'links'
+
+
+class ScriptTag(NamedTuple):
+    name = 'script'
+    attr = 'src'
+    message = 'scripts'
 
 
 class FileSuffixes(Enum):

@@ -5,7 +5,8 @@ from .log_config import logger
 from typing import Literal, Callable
 from page_loader.core.downloaders import Downloaders
 from page_loader.core.link_handling import PathBuilder
-from page_loader.core.dataclasses import DownloadInformation, FileSuffixes
+from page_loader.core.dataclasses import DownloadInformation, FileSuffixes, \
+    Webpage
 from page_loader.exceptions import PageNotAvailableError, \
     DirectoryCreationError
 
@@ -22,15 +23,14 @@ def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
     download_information = DownloadInformation(
         webpage_link=webpage_link,
         path_to_save_directory=path_to_save_directory,
-        webpage_data=webpage_data,
         path_to_resources_directory=path_to_resources_directory,
         path_to_main_html=path_to_main_html)
-    main_obj = Downloaders(download_information)
+    main_obj = Downloaders(download_information, webpage_data)
     main_obj.download_all()
-    return main_obj.path_to_main_html
+    return main_obj.download_info.path_to_main_html
 
 
-def _make_request_by_link(link: str) -> str:
+def _make_request_by_link(link: str) -> Webpage:
     try:
         request_by_link = requests.get(link)
     except ConnectionError as e:
@@ -41,11 +41,11 @@ def _make_request_by_link(link: str) -> str:
         logger.error(f'Page not Available error. Status code is '
                      f'{request_status_code}')
         raise PageNotAvailableError
-    webpage_data = request_by_link.text
+    webpage_data = Webpage(webpage=request_by_link.text)
     return webpage_data
 
 
-def _make_dir(path: str):
+def _make_dir(path: str) -> None:
     try:
         os.mkdir(path)
     except PermissionError as e:
