@@ -4,7 +4,7 @@ from requests.exceptions import ConnectionError
 from .log_config import logger
 from typing import Literal, Callable
 from page_loader.core.downloaders import Downloaders
-from page_loader.core.link_handling import PathBuilder
+from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, FileSuffixes, \
     Webpage
 from page_loader.exceptions import PageNotAvailableError, \
@@ -12,7 +12,7 @@ from page_loader.exceptions import PageNotAvailableError, \
 
 
 def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
-    PathBuilder(webpage_link).check_link()
+    PathHandler(webpage_link).check_link()
     webpage_data = _make_request_by_link(webpage_link)
     path_to_main_html = _give_data_to_make_paths(
         FileSuffixes.HTML_FILE_SUFFIX, path_to_save_directory,
@@ -67,7 +67,7 @@ def _get_path_to_main_files(function: Callable) -> Callable:
 
         suffix, path_to_save_directory, webpage_link = \
             function(suffix, path_to_save_directory, webpage_link)
-        format_webpage_link = PathBuilder(
+        format_webpage_link = PathHandler(
             webpage_link).format_webpage_link()
         path_to_main_file = os.path.join(path_to_save_directory,
                                          format_webpage_link) + suffix

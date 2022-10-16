@@ -9,7 +9,7 @@ from page_loader.exceptions import MissingSchemaError
 FORMAT_FILE = '.html'
 
 
-class PathBuilder:
+class PathHandler:
 
     def __init__(self, webpage_link: str):
         self.webpage_link = webpage_link

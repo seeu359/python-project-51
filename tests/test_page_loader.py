@@ -8,7 +8,7 @@ from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
 from page_loader.core.downloaders import Downloaders, _resources_validator, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
-from page_loader.core.link_handling import PathBuilder
+from page_loader.core.link_handling import PathHandler
 from page_loader.loader import download, _make_dir
 from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
     ImgTag, ScriptTag, LinkTag
@@ -130,7 +130,7 @@ def test_is_true_domain(index, tag, expected, test_bs_object):
                            'folder_files/test-file-path.html')]
                          )
 def test_build_path_to_swap_in_html(link, expected):
-    test_obj = PathBuilder(link)
+    test_obj = PathHandler(link)
     folder = 'main/folder_files'
     assert test_obj.build_path_to_swap_in_html(folder) == expected
 
@@ -142,7 +142,7 @@ def test_build_path_to_swap_in_html(link, expected):
                            'http://test.com/file/file2.png')]
                          )
 def test_build_link(link, file_path, expected):
-    test_obj = PathBuilder(link)
+    test_obj = PathHandler(link)
     assert test_obj.build_resource_link(file_path) == expected
 
 
@@ -153,7 +153,7 @@ def test_error_make_dir():
 
 def test_error_missing_scheme():
     with pytest.raises(MissingSchemaError):
-        pathbuilder_obj = PathBuilder('test-link.com')
+        pathbuilder_obj = PathHandler('test-link.com')
         pathbuilder_obj.check_link()
 
 

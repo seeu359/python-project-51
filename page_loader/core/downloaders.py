@@ -4,7 +4,7 @@ from page_loader.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
 from page_loader.core.file_handling import FileWorker
-from page_loader.core.link_handling import PathBuilder
+from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, RecordingData, \
     Webpage, ImgTag, ScriptTag, LinkTag
 from typing import Union
@@ -19,7 +19,7 @@ class Downloaders:
                  webpage: Webpage):
         self.download_info = download_information
         self.webpage_data = webpage
-        self.format_webpage_link = PathBuilder(
+        self.format_webpage_link = PathHandler(
             self.download_info.webpage_link).format_webpage_link()
         self.parse_data = BeautifulSoup(self.webpage_data.webpage,
                                         'html.parser')
@@ -58,7 +58,7 @@ class Downloaders:
             for res in resources_list:
                 resource = res[tag.attr]
                 _, extension = os.path.splitext(resource)
-                link = PathBuilder(
+                link = PathHandler(
                     self.download_info.webpage_link).build_resource_link(
                     resource)
                 resource_data = self.get_bytes_data(link) if \
@@ -119,7 +119,7 @@ def _is_true_domain(resource_link: str, webpage_link: str) -> bool:
 
 def _change_path_in_html(link: str, resource: ResultSet,
                          tag_attr: str, resource_folder: str) -> str:
-    path = PathBuilder(link).build_path_to_swap_in_html(resource_folder)
+    path = PathHandler(link).build_path_to_swap_in_html(resource_folder)
     resource[tag_attr] = path
     return path
 
