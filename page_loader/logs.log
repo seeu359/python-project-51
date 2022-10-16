@@ -1,15 +1,15 @@
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: Encoding detection: Unable to determine any suitable charset.
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET http://test.com/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET https://ru.hexlet.io/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET https://ru.hexlet.io/ 200
-DEBUG :: 16-10-2022 23:46:15 :: GET https://ru.hexlet.io/ 200
-ERROR :: 16-10-2022 23:46:15 :: No such directory. Error: [Errno 2] No such file or directory: 'test_path/test'
-ERROR :: 16-10-2022 23:46:15 :: Missing scheme! Link - test-link.com
-ERROR :: 16-10-2022 23:46:15 :: Can not create directory. Permission denied!Error: [Errno 13] Permission denied: '/Users/a.cheremushkin/hello/test'
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: Encoding detection: Unable to determine any suitable charset.
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET http://test.com/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET https://ru.hexlet.io/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET https://ru.hexlet.io/ 200
+DEBUG :: 17-10-2022 00:01:22 :: GET https://ru.hexlet.io/ 200
+ERROR :: 17-10-2022 00:01:22 :: No such directory. Error: [Errno 2] No such file or directory: 'test_path/test'
+ERROR :: 17-10-2022 00:01:22 :: Missing scheme! Link - test-link.com
+ERROR :: 17-10-2022 00:01:22 :: Can not create directory. Permission denied!Error: [Errno 13] Permission denied: '/Users/a.cheremushkin/hello/test'

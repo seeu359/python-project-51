@@ -112,15 +112,14 @@ def test_get_resources_set(tag, expected, html_fixture):
             assert len(test_obj.get_resources_lst(tag)) == expected
 
 
-@pytest.mark.parametrize('index, tag_name, tag_attr, expected,',
-                         [(0, ImgTag.name, ImgTag.attr, 1),
-                          (1, LinkTag.name, LinkTag.attr, 2),
-                          (2, ScriptTag.name, ScriptTag.attr, 1)]
+@pytest.mark.parametrize('index, tag, expected,',
+                         [(0, ImgTag, 1),
+                          (1, LinkTag, 2),
+                          (2, ScriptTag, 1)]
                          )
-def test_is_true_domain(index, tag_name, tag_attr, expected, test_bs_object):
+def test_is_true_domain(index, tag, expected, test_bs_object):
     resource_set = test_bs_object[index]
-    result_set = _resources_validator(resource_set, tag_name, tag_attr,
-                                      TEST_LINK2)
+    result_set = _resources_validator(resource_set, tag, TEST_LINK2)
     assert len(result_set) == expected
 
 
