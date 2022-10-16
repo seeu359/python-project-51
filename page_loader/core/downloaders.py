@@ -46,7 +46,7 @@ class Downloaders:
             -> list[ResultSet]:
         resources = self.parse_data.find_all(tag.name,
                                              {tag.attr: True})
-        resources_list = _resources_validator(resources, tag.name, tag.attr,
+        resources_list = _resources_validator(resources, tag,
                                               self.download_info.webpage_link)
         return resources_list
 
@@ -83,18 +83,19 @@ class Downloaders:
                 self.download_info.path_to_main_html)).record_html()
 
 
-def _resources_validator(resources_list: ResultSet, tag_name: str,
-                         tag_attr: str, webpage_link: str) -> ResultSet:
+def _resources_validator(resources_list: ResultSet,
+                         tag: type[Union[ImgTag, ScriptTag, LinkTag]],
+                         webpage_link: str) -> ResultSet:
     processed_set = ResultSet(SoupStrainer())
-    if tag_name == 'img':
+    if tag.name == 'img':
         for resource in resources_list:
-            resource_path = resource[tag_attr]
+            resource_path = resource[tag.attr]
             if all((_check_image_extension(resource_path),
                     _is_true_domain(resource_path, webpage_link))):
                 processed_set.append(resource)
     else:
         for resource in resources_list:
-            resource_path = resource[tag_attr]
+            resource_path = resource[tag.attr]
             if _is_true_domain(resource_path, webpage_link):
                 processed_set.append(resource)
     return processed_set
