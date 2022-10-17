@@ -88,4 +88,4 @@ class UserMessage(Enum):
     FAILED_TO_LOAD = 'Failed to load page!'
     DATA_DOWNLOAD_ERROR = 'An error occurred while loading local resources!'
     MISSING_SCHEME = 'There is no scheme in the page address. ' \
-                     'Example link: "https://"'
+                     'Example link: "https://'
