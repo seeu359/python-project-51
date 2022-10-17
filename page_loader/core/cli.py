@@ -5,6 +5,10 @@ from typing import Literal
 
 
 def get_parser_args() -> [Literal['link'], Literal['-o'], Literal['-output']]:
+    """
+    Return cli arguments: link and output path
+    :return: ArgumentParser[str, str]
+    """
     arguments = ArgumentParser(link='link', save_directory_short='-o',
                                save_directory_long='--output')
     parser = argparse.ArgumentParser(description='The utility downloads the '

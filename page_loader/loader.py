@@ -1,17 +1,24 @@
 import os
 import requests
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, InvalidSchema
 from .log_config import logger
 from typing import Literal, Callable
 from page_loader.core.downloaders import Downloaders
 from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, FileSuffixes, \
-    Webpage
+    Webpage, ExceptionLogMessage
 from page_loader.exceptions import PageNotAvailableError, \
-    DirectoryCreationError
+    DirectoryCreationError, PermissionDenied
 
 
 def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
+    """
+    Main func of cli-utility. Runs in the main script. Returns the path to the
+    main html file and prints it to the console.
+    :param webpage_link: str
+    :param path_to_save_directory: str
+    :return: str
+    """
     PathHandler(webpage_link).check_link()
     webpage_data = _make_request_by_link(webpage_link)
     path_to_main_html = _give_data_to_make_paths(
@@ -34,11 +41,16 @@ def _make_request_by_link(link: str) -> Webpage:
     try:
         request_by_link = requests.get(link)
     except ConnectionError as e:
-        logger.error(f'Connection error! Error {e}')
+        logger.error(f'{ExceptionLogMessage.CONNECTION_ERROR.value}'
+                     f'{e}')
+        raise PageNotAvailableError
+    except InvalidSchema as e:
+        logger.error(f'{ExceptionLogMessage.CONNECTION_ERROR.value}'
+                     f'{e}')
         raise PageNotAvailableError
     request_status_code = request_by_link.status_code
     if request_status_code in (404, 500):
-        logger.error(f'Page not Available error. Status code is '
+        logger.error(f'{ExceptionLogMessage.PAGE_NOT_AVAILABLE.value}'
                      f'{request_status_code}')
         raise PageNotAvailableError
     webpage_data = Webpage(webpage=request_by_link.text)
@@ -49,14 +61,13 @@ def _make_dir(path: str) -> None:
     try:
         os.mkdir(path)
     except PermissionError as e:
-        logger.error(f'Can not create directory. Permission denied!'
-                     f'Error: {e}')
-        raise DirectoryCreationError
+        logger.error(f'{ExceptionLogMessage.PERMISSION_DENIED.value}{e}')
+        raise PermissionDenied
     except FileExistsError as e:
-        logger.error(f'The directory already exists. Error: {e}')
+        logger.error(f'{ExceptionLogMessage.FILE_EXIST_ERROR.value}{e}')
         raise DirectoryCreationError
     except FileNotFoundError as e:
-        logger.error(f'No such directory. Error: {e}')
+        logger.error(f'{ExceptionLogMessage.FILE_NOT_FOUND.value}{e}')
         raise DirectoryCreationError
 
 

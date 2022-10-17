@@ -5,12 +5,15 @@ import pathlib
 from page_loader.log_config import logger
 from urllib.parse import urlparse, urljoin
 from page_loader.exceptions import MissingSchemaError
+from page_loader.core.dataclasses import ExceptionLogMessage
+
 
 FORMAT_FILE = '.html'
 
 
 class PathHandler:
-
+    """A class for handling file paths and local page resources,
+    formatting links."""
     def __init__(self, webpage_link: str):
         self.webpage_link = webpage_link
         self.parse_link = urlparse(webpage_link)
@@ -45,10 +48,21 @@ class PathHandler:
 
     @staticmethod
     def replace_dash(link: str) -> str:
+        """
+        Delete dash from link
+        :param link: str
+        :return: str
+        """
         format_link = re.sub(r'[^a-zA-Z\d]', '-', link)
         return format_link
 
     def check_link(self) -> None:
+        """
+        Check link scheme. If there no scheme in link - missing scheme error
+        raise
+        :return: None
+        """
         if not self.parse_link.scheme:
-            logger.error(f'Missing scheme! Link - {self.webpage_link}')
+            logger.error(f'{ExceptionLogMessage.MISSING_SCHEMA.value}'
+                         f'{self.webpage_link}')
             raise MissingSchemaError

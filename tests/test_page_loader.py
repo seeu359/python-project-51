@@ -4,14 +4,15 @@ import pathlib
 import tempfile
 import requests
 import os
-from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
+from page_loader.exceptions import DirectoryCreationError, MissingSchemaError, \
+    PermissionDenied
 from page_loader.core.downloaders import Downloaders, _resources_validator, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathHandler
 from page_loader.loader import download, _make_dir
 from page_loader.core.dataclasses import RecordingData, DownloadInformation, \
-    ImgTag, ScriptTag, LinkTag, Tags
+    ImgTag, ScriptTag, LinkTag
 from page_loader.loader import _make_request_by_link
 
 TEST_LINK = 'http://test.com'
@@ -64,7 +65,7 @@ def test_get_image_data(html_fixture):
             recording_data = RecordingData(data=image_data,
                                            path_to_save_data=str(path))
             file_worker = FileWorker(recording_data)
-            file_worker.record_image()
+            file_worker.record_bytes_data()
             image = read_bytes_data(path)
             assert image == requests.get(TEST_LINK).content
 
@@ -94,21 +95,22 @@ def test_record_resource(extension, reader, path):
         assert test_file == fixture_data
 
 
-@pytest.mark.parametrize('file, expected',
-                         [(os.path.join(PATH, 'fixture_for_link.html'), 2)])
-def test_get_resources_set(file, expected):
+@pytest.mark.parametrize('tag, expected',
+                         [(ImgTag, 1),
+                          (LinkTag, 2),
+                          (ScriptTag, 1)]
+                         )
+def test_get_resources_set(tag, expected, html_fixture):
     with requests_mock.Mocker() as mock:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            mock.get(TEST_LINK, text=read_text_data(file))
             download_information = DownloadInformation(
-                webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
+                webpage_link=TEST_LINK3, path_to_save_directory=tmp_dir,
                 path_to_resources_directory=tmp_dir,
                 path_to_main_html=tmp_dir)
+            mock.get(TEST_LINK3, text=html_fixture)
             test_obj = Downloaders(download_information,
-                                   _make_request_by_link(TEST_LINK))
-            test_obj.get_resources_lst(Tags)
-            assert len(os.listdir(os.path.join(tmp_dir, 'test-com_files'))) \
-                   == expected
+                                   _make_request_by_link(TEST_LINK3))
+            assert len(test_obj.get_resources_set(tag)) == expected
 
 
 @pytest.mark.parametrize('index, tag, expected,',
@@ -157,5 +159,5 @@ def test_error_missing_scheme():
 
 
 def test_error_permission_denied():
-    with pytest.raises(DirectoryCreationError):
+    with pytest.raises(PermissionDenied):
         _make_dir('/Users/a.cheremushkin/hello/test')
