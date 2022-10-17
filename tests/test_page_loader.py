@@ -4,8 +4,7 @@ import pathlib
 import tempfile
 import requests
 import os
-from page_loader.exceptions import DirectoryCreationError, MissingSchemaError, \
-    PermissionDenied
+from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
 from page_loader.core.downloaders import Downloaders, _resources_validator, \
     _change_path_in_html, _record_resources
 from page_loader.core.file_handling import FileWorker
