@@ -8,7 +8,7 @@ from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, FileSuffixes, \
     Webpage, ExceptionLogMessage
 from page_loader.exceptions import PageNotAvailableError, \
-    DirectoryCreationError, PermissionDenied
+    DirectoryCreationError
 
 
 def download(webpage_link: str, path_to_save_directory=os.getcwd()) -> str:
@@ -62,7 +62,7 @@ def _make_dir(path: str) -> None:
         os.mkdir(path)
     except PermissionError as e:
         logger.error(f'{ExceptionLogMessage.PERMISSION_DENIED.value}{e}')
-        raise PermissionDenied
+        raise DirectoryCreationError
     except FileExistsError as e:
         logger.error(f'{ExceptionLogMessage.FILE_EXIST_ERROR.value}{e}')
         raise DirectoryCreationError

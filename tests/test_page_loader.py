@@ -158,6 +158,6 @@ def test_error_missing_scheme():
         pathbuilder_obj.check_link()
 
 
-def test_error_permission_denied():
-    with pytest.raises(PermissionDenied):
+def test_error_file_not_found_error():
+    with pytest.raises(DirectoryCreationError):
         _make_dir('/Users/a.cheremushkin/hello/test')

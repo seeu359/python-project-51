@@ -58,7 +58,7 @@ class PathHandler:
 
     def check_link(self) -> None:
         """
-        Check link scheme. If there no scheme in link - missing scheme error
+        Check link scheme. If there's no scheme in link - missing scheme error
         raise
         :return: None
         """

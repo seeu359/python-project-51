@@ -17,7 +17,3 @@ class ImageDownloadingError(Exception):
 
 class TextDataDownloadingError(Exception):
     pass
-
-
-class PermissionDenied(Exception):
-    pass
