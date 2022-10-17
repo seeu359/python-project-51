@@ -46,6 +46,12 @@ class ScriptTag(NamedTuple):
     message = 'scripts'
 
 
+class Tags(Enum):
+    IMG = ImgTag
+    SCRIPT = ScriptTag
+    LINK = LinkTag
+
+
 class FileSuffixes(Enum):
     FOLDER_SUFFIX = '_files'
     HTML_FILE_SUFFIX = '.html'

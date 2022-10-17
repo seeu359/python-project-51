@@ -6,8 +6,7 @@ from urllib.parse import urlparse
 from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, RecordingData, \
-    Webpage, ImgTag, ScriptTag, LinkTag
-from typing import Union
+    Webpage, ImgTag, ScriptTag, LinkTag, Tags
 from progress.bar import ShadyBar
 from page_loader.exceptions import ImageDownloadingError, \
     TextDataDownloadingError
@@ -42,20 +41,21 @@ class Downloaders:
             raise TextDataDownloadingError
         return requests.get(link).text
 
-    def get_resources_lst(self, tag: type[Union[ImgTag, ScriptTag, LinkTag]]) \
-            -> list[ResultSet]:
-        resources = self.parse_data.find_all(tag.name,
-                                             {tag.attr: True})
-        resources_list = _resources_validator(resources, tag,
-                                              self.download_info.webpage_link)
-        return resources_list
+    def get_resources_lst(self, tags: type[Tags]) \
+            -> None:
+        for _tag in tags:
+            tag = _tag.value
+            resources = self.parse_data.find_all(tag.name,
+                                                 {tag.attr: True})
+            resources_set = _resources_validator(
+                resources, tag, self.download_info.webpage_link)
+            self.download_resources(resources_set, tag)
 
-    def download_resources(
-            self, tag: type[Union[ImgTag, ScriptTag, LinkTag]]) -> None:
-        resources_list = self.get_resources_lst(tag)
-        with ShadyBar(f'Downloading {tag.message}:', max=len(resources_list)) \
-                as bar:
-            for res in resources_list:
+    def download_resources(self, resource_set: ResultSet,
+                           tag: type[ImgTag, LinkTag, ScriptTag]) -> None:
+        with ShadyBar(f'Downloading {tag.message}:',
+                      max=len(resource_set)) as bar:
+            for res in resource_set:
                 resource = res[tag.attr]
                 _, extension = os.path.splitext(resource)
                 link = PathHandler(
@@ -74,9 +74,7 @@ class Downloaders:
 
     def download_all(self) -> None:
 
-        self.download_resources(ImgTag)
-        self.download_resources(LinkTag)
-        self.download_resources(ScriptTag)
+        self.get_resources_lst(Tags)
         FileWorker(
             _get_recording_data_obj(
                 self.parse_data.prettify(),
@@ -84,7 +82,7 @@ class Downloaders:
 
 
 def _resources_validator(resources_list: ResultSet,
-                         tag: type[Union[ImgTag, ScriptTag, LinkTag]],
+                         tag: type[ImgTag, ScriptTag, LinkTag],
                          webpage_link: str) -> ResultSet:
     processed_set = ResultSet(SoupStrainer())
     if tag.name == 'img':
