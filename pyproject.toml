@@ -1,7 +1,9 @@
 [tool.poetry]
 name = "hexlet-code"
 version = "0.1.0"
-description = ""
+description = "The utility downloads the 'page from the web and saves its html form to the specified path"
+repository = "https://github.com/seeu359/python-project-51"
+classifiers = ['?']
 authors = ["seeu359 <a.ch3re359@yandex.ru>"]
 packages = [
   { include = "page_loader" },
@@ -11,7 +13,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.10"
 requests = "^2.28.1"
-bs4 = "^0.0.1"
+beautifulsoup4 = "^4.11.1"
 furl = "^2.1.3"
 progress = "^1.6"
 
@@ -21,10 +23,6 @@ flake8 = "^5.0.4"
 requests-mock = "^1.10.0"
 pytest-cov = "^3.0.0"
 pytest = "^7.1.3"
-furl = "^2.1.3"
-beautifulsoup4 = "^4.11.1"
-progress = "^1.6"
-tap = "^0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

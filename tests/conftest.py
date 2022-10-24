@@ -1,13 +1,12 @@
 import os
 import pytest
 from bs4 import BeautifulSoup
-from page_loader.core.downloaders import Downloaders
+from page_loader.core.downloader import Downloader
 import requests_mock
 import tempfile
-from page_loader.core.dataclasses import DownloadInformation
-from page_loader.loader import _make_request_by_link
+from page_loader.loader import make_request_by_url
 PATH = 'tests/fixtures'
-TEST_LINK = 'http://test.com'
+TEST_URL = 'http://test.com'
 TEST_FILE_PATH = 'test/file/path.png'
 
 
@@ -24,17 +23,13 @@ def read_text_data(path):
 
 
 @pytest.fixture()
-def get_link_data_fixture():
+def get_url_data_fixture():
     with tempfile.TemporaryDirectory() as tmp_dir:
         with requests_mock.Mocker() as mock:
-            test_main_obj = DownloadInformation(
-                webpage_link=TEST_LINK, path_to_save_directory=tmp_dir,
-                path_to_resources_directory=tmp_dir,
-                path_to_main_html=tmp_dir)
-            mock.get(TEST_LINK, text='test')
-            test_obj = Downloaders(test_main_obj,
-                                   _make_request_by_link(TEST_LINK))
-            return test_obj.get_text_data(TEST_LINK)
+            mock.get(TEST_URL, text='test')
+            test_obj = Downloader(TEST_URL, tmp_dir, tmp_dir, tmp_dir,
+                                  make_request_by_url(TEST_URL).text)
+            return test_obj.get_text_data(TEST_URL)
 
 
 @pytest.fixture()
@@ -70,5 +65,5 @@ def css_fixture():
 def fixture_for_checker():
     tag = 'img'
     res_path = '/test/path.svg'
-    webpage_link = TEST_LINK
-    return tag, res_path, webpage_link
+    webpage_url = TEST_URL
+    return tag, res_path, webpage_url

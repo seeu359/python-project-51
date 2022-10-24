@@ -1,28 +1,12 @@
-from dataclasses import dataclass
 from enum import Enum
 from typing import NamedTuple
 from typing import Literal
 
 
-@dataclass
-class Webpage:
-    """The dataclass is an ordinary string. Created for clearer understanding
-    of the returned data and further manipulations with it."""
-    webpage: str
-
-
-class DownloadInformation(NamedTuple):
-    """Main info for download and save html page, make resource folder etc"""
-    webpage_link: str
-    path_to_save_directory: str
-    path_to_resources_directory: str
-    path_to_main_html: str
-
-
 class ArgumentParser(NamedTuple):
-    """Cli arguments. Link for download page, command to specify path to
+    """Cli arguments. Url for download page, command to specify path to
     save directory"""
-    link: Literal['link']
+    url: Literal['url']
     save_directory_short: Literal['-o']
     save_directory_long: Literal['--output']
 
@@ -75,17 +59,7 @@ class ExceptionLogMessage(Enum):
     PERMISSION_DENIED = 'Can not create directory. Permission denied! Error: '
     FILE_EXIST_ERROR = 'The directory already exists. Error: '
     FILE_NOT_FOUND = 'No such directory. Error: '
-    IMAGE_DOWNLOAD_ERROR = 'Downloading Image Error. Image link: '
-    TEXT_DOWNLOAD_ERROR = 'Text Data Downloading Error.Resource link: '
-    MISSING_SCHEMA = 'Missing scheme! Link: '
-
-
-class UserMessage(Enum):
-    """Exception message for user output message"""
-    DOWNLOAD_SUCCESS = 'Page was downloaded!'
-    DIRECTORY_CREATE_ERROR = 'Invalid path! Cannot create file in this path!'
-    PERMISSION_DENIED = 'No write access to this folder!'
-    FAILED_TO_LOAD = 'Failed to load page!'
-    DATA_DOWNLOAD_ERROR = 'An error occurred while loading local resources!'
-    MISSING_SCHEME = 'There is no scheme in the page address. ' \
-                     'Example link: "https://'
+    IMAGE_DOWNLOAD_ERROR = 'Downloading Image Error. Image url: '
+    TEXT_DOWNLOAD_ERROR = 'Text Data Downloading Error.Resource url: '
+    MISSING_SCHEMA = 'Missing scheme! url: '
+    INVALID_URL = 'Invalid URL: '

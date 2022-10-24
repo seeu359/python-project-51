@@ -3,6 +3,10 @@ class MissingSchemaError(Exception):
     pass
 
 
+class HttpRequestError(Exception):
+    pass
+
+
 class PageNotAvailableError(Exception):
     pass
 
@@ -16,4 +20,8 @@ class ImageDownloadingError(Exception):
 
 
 class TextDataDownloadingError(Exception):
+    pass
+
+
+class InvalidUrl(Exception):
     pass
