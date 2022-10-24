@@ -72,10 +72,10 @@ def _make_dir(path: str) -> None:
 
 
 def _get_path_to_main_files(function: Callable) -> Callable:
-    def wrapper(suffix: str,
-                path_to_save_directory: str,
-                webpage_link: str) -> str:
-
+    def wrapper(
+            suffix: str,
+            path_to_save_directory: str,
+            webpage_link: str) -> str:
         suffix, path_to_save_directory, webpage_link = \
             function(suffix, path_to_save_directory, webpage_link)
         format_webpage_link = PathHandler(

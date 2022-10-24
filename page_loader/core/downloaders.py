@@ -7,7 +7,7 @@ from page_loader.core.file_handling import FileWorker
 from page_loader.core.link_handling import PathHandler
 from page_loader.core.dataclasses import DownloadInformation, RecordingData, \
     Webpage, ImgTag, ScriptTag, LinkTag, Tags, ExceptionLogMessage
-from typing import Union
+from typing import Union, Iterable
 from progress.bar import ShadyBar
 from page_loader.exceptions import ImageDownloadingError, \
     TextDataDownloadingError
@@ -33,7 +33,7 @@ class Downloaders:
 
     @staticmethod
     def get_bytes_data(link: str) -> bytes:
-        request_status_code = requests.get(link).status_code
+        request_status_code: int = requests.get(link).status_code
         if request_status_code != 200:
             logger.error(f'{ExceptionLogMessage.IMAGE_DOWNLOAD_ERROR.value}'
                          f'{link}')
@@ -43,21 +43,21 @@ class Downloaders:
 
     @staticmethod
     def get_text_data(link: str) -> str:
-        request_status_code = requests.get(link).status_code
+        request_status_code: int = requests.get(link).status_code
         if request_status_code != 200:
             logger.error(f'{ExceptionLogMessage.TEXT_DOWNLOAD_ERROR.value}'
                          f'{link}')
             raise TextDataDownloadingError
         return requests.get(link).text
 
-    def get_resources_set(self, tag: type[ImgTag, ScriptTag, LinkTag]) \
-            -> ResultSet:
+    def get_resources_set(self, tag: type[[ImgTag], type[ScriptTag],
+                                          type[LinkTag]]) -> ResultSet:
         resources = self.parse_data.find_all(tag.name, {tag.attr: True})
-        resources_set = _resources_validator(resources, tag,
-                                             self.download_info.webpage_link)
+        resources_set: ResultSet = _resources_validator(
+            resources, tag, self.download_info.webpage_link)
         return resources_set
 
-    def download_resources(self, tags: type[Tags]) -> None:
+    def download_resources(self, tags: Iterable[Tags]) -> None:
         for _tag in tags:
             tag = _tag.value
             resources_set = self.get_resources_set(tag)
