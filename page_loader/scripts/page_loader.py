@@ -3,9 +3,8 @@ import sys
 from page_loader.loader import download
 from page_loader.core.cli import get_parser_args
 from page_loader.core import exception_messages as em
-from page_loader.exceptions import MissingSchemaError, ImageDownloadingError, \
-    TextDataDownloadingError, PageNotAvailableError, DirectoryCreationError, \
-    InvalidUrl, HttpRequestError
+from page_loader.exceptions import MissingSchemaError, PageNotAvailableError, \
+    DirectoryCreationError, InvalidUrl, HttpRequestError, ResourceDownloadError
 
 
 def main():
@@ -20,8 +19,7 @@ def main():
     except (HttpRequestError, PageNotAvailableError):
         print(em.FAILED_TO_LOAD)
         sys.exit(1)
-    except (ImageDownloadingError, TextDataDownloadingError):
-        print(em.DATA_DOWNLOAD_ERROR)
+    except ResourceDownloadError:
         sys.exit(1)
     except MissingSchemaError:
         print(em.MISSING_SCHEME + args.url)

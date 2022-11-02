@@ -4,13 +4,13 @@ from page_loader.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
 from page_loader.core.file_handling import FileWorker
-from page_loader.core.url_handling import PathHandler
+from page_loader.core.url_handling import build_resource_url, PathHandler
 from page_loader.core.dataclasses import RecordingData, ImgTag, ScriptTag, \
-    LinkTag, Tags, ExceptionLogMessage
+    LinkTag, Tags
+from page_loader.core import exception_messages
 from typing import Union, Iterable
 from progress.bar import ShadyBar
-from page_loader.exceptions import ImageDownloadingError, \
-    TextDataDownloadingError, HttpRequestError
+from page_loader.exceptions import ResourceDownloadError, HttpRequestError
 from requests.exceptions import ConnectionError, InvalidSchema, \
     RequestException, HTTPError, URLRequired, TooManyRedirects, Timeout
 
@@ -32,24 +32,8 @@ class Downloader:
         self.path_to_resources_folder = path_to_resources_folder
         self.path_to_main_html = path_to_main_html
         self.webpage_data = webpage
-        self.format_webpage_url = PathHandler(
-            self.url).format_webpage_url()
         self.parse_data = BeautifulSoup(self.webpage_data,
                                         'html.parser')
-
-    @staticmethod
-    def get_bytes_data(url: str) -> bytes:
-        data = make_request_by_url(url,
-                                   ExceptionLogMessage.IMAGE_DOWNLOAD_ERROR,
-                                   ImageDownloadingError)
-        return data.content
-
-    @staticmethod
-    def get_text_data(url: str) -> str:
-        data = make_request_by_url(url,
-                                   ExceptionLogMessage.TEXT_DOWNLOAD_ERROR,
-                                   TextDataDownloadingError)
-        return data.text
 
     def get_resources_set(self, tag: type[[ImgTag], type[ScriptTag],
                                           type[LinkTag]]) -> ResultSet:
@@ -68,19 +52,17 @@ class Downloader:
                     resource_link = res[tag.attr]
                     _, extension = os.path.splitext(resource_link)
 
-                    resource_url = PathHandler(
-                        self.url).build_resource_url(
-                        resource_link)
+                    resource_url = build_resource_url(self.url, resource_link)
 
-                    resource_data = self.get_bytes_data(resource_url) if \
+                    resource_data = get_bytes_data(resource_url) if \
                         extension in ('.jpeg', '.jpg', '.png', '.css') \
-                        else self.get_text_data(resource_url)
+                        else get_text_data(resource_url)
 
                     local_resource_path = _change_path_in_html(
                         resource_url, res, tag.attr,
                         self.path_to_resources_folder)
 
-                    _record_resources(
+                    _save_resources(
                         local_resource_path, resource_data,
                         self.path_to_save_directory, extension)
                     bar.next()
@@ -88,29 +70,41 @@ class Downloader:
     def download_all(self) -> None:
 
         self.download_resources(Tags)
-        FileWorker(
-            _get_recording_data_obj(
-                self.parse_data.prettify(),
-                self.path_to_main_html)).record_text_data()
+
+        recording_data = RecordingData(
+            data=self.parse_data.prettify(),
+            path_to_save_data=self.path_to_main_html)
+
+        FileWorker(recording_data).save_text_data()
 
 
-def make_request_by_url(url: str, log_message=None, error=None) \
+def make_request(url: str) \
         -> requests.models.Response:
     try:
         response = requests.get(url)
 
     except (ConnectionError, InvalidSchema, RequestException, HTTPError,
             URLRequired, TooManyRedirects, Timeout) as e:
-        logger.error(f'{ExceptionLogMessage.CONNECTION_ERROR.value}'
+        logger.error(f'{exception_messages.CONNECTION_ERROR}'
                      f'{e}')
         raise HttpRequestError
 
     request_status_code = response.status_code
     if request_status_code in (404, 500):
-        logger.error(f'{log_message.value}'
+        logger.error(f'{exception_messages.RESOURCE_LOAD_ERROR}'
                      f'{request_status_code}')
-        raise error
+        raise ResourceDownloadError
     return response
+
+
+def get_bytes_data(url: str) -> bytes:
+    data = make_request(url)
+    return data.content
+
+
+def get_text_data(url: str) -> str:
+    data = make_request(url)
+    return data.text
 
 
 def _resources_validator(resources_list: ResultSet,
@@ -163,18 +157,16 @@ def _change_path_in_html(link: str, resource: ResultSet,
     return path
 
 
-def _record_resources(local_resource_path: str,
-                      data: str | bytes,
-                      save_folder: str, extension: str) -> None:
+def _save_resources(local_resource_path: str,
+                    data: str | bytes,
+                    save_folder: str, extension: str) -> None:
     path_to_save_data = os.path.join(save_folder, local_resource_path)
-    recording_data = _get_recording_data_obj(data, path_to_save_data)
+
+    recording_data = RecordingData(data=data,
+                                   path_to_save_data=path_to_save_data)
+
     _file_worker = FileWorker(recording_data)
-    recorder = _file_worker.record_bytes_data if \
+    recorder = _file_worker.save_bytes_data if \
         extension in ('.png', '.jpeg', '.jpg', '.css') else \
-        _file_worker.record_text_data
+        _file_worker.save_text_data
     recorder()
-
-
-def _get_recording_data_obj(data: str | bytes,
-                            path_to_save_data: str) -> RecordingData:
-    return RecordingData(data=data, path_to_save_data=path_to_save_data)

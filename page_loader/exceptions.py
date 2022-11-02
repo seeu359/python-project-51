@@ -15,13 +15,9 @@ class DirectoryCreationError(Exception):
     pass
 
 
-class ImageDownloadingError(Exception):
-    pass
-
-
-class TextDataDownloadingError(Exception):
-    pass
-
-
 class InvalidUrl(Exception):
+    pass
+
+
+class ResourceDownloadError(Exception):
     pass

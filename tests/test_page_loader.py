@@ -6,13 +6,14 @@ import requests
 import os
 from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
 from page_loader.core.downloader import Downloader, _resources_validator, \
-    _change_path_in_html, _record_resources
+    _change_path_in_html, _save_resources, get_bytes_data
 from page_loader.core.file_handling import FileWorker
-from page_loader.core.url_handling import PathHandler
+from page_loader.core.url_handling import PathHandler, build_resource_url, \
+    check_url
 from page_loader.loader import download, _make_dir
 from page_loader.core.dataclasses import RecordingData, ImgTag, ScriptTag, \
     LinkTag
-from page_loader.loader import make_request_by_url
+from page_loader.loader import make_request
 
 TEST_URL = 'http://test.com'
 TEST_URL2 = 'https://ru.hexlet.io/courses'
@@ -53,15 +54,12 @@ def test_get_image_data(html_fixture):
         with requests_mock.Mocker() as mock:
             content = read_bytes_data(os.path.join(PATH, 'image_fixture.png'))
             mock.get(TEST_URL, content=content)
-
-            test_main_obj = Downloader(TEST_URL, tmp_dir, tmp_dir, tmp_dir,
-                                       make_request_by_url(TEST_URL).text)
-            image_data = test_main_obj.get_bytes_data(TEST_URL)
+            image_data = get_bytes_data(TEST_URL)
             path = pathlib.Path(tmp_dir, 'test.png')
             recording_data = RecordingData(data=image_data,
                                            path_to_save_data=str(path))
             file_worker = FileWorker(recording_data)
-            file_worker.record_bytes_data()
+            file_worker.save_bytes_data()
             image = read_bytes_data(path)
             assert image == requests.get(TEST_URL).content
 
@@ -84,7 +82,7 @@ def test_record_resource(extension, reader, path):
     with tempfile.TemporaryDirectory() as tmp:
         fixture_data = reader(path)
         local_resource_path = 'test_path.ext'
-        _record_resources(local_resource_path, fixture_data, tmp, extension)
+        _save_resources(local_resource_path, fixture_data, tmp, extension)
         test_file = reader(os.path.join(tmp, local_resource_path))
         path_to_file = os.path.join(tmp, local_resource_path)
         assert os.path.isfile(path_to_file)
@@ -101,7 +99,7 @@ def test_get_resources_set(tag, expected, html_fixture):
         with tempfile.TemporaryDirectory() as tmp_dir:
             mock.get(TEST_URL3, text=html_fixture)
             test_obj = Downloader(TEST_URL3, tmp_dir, tmp_dir, tmp_dir,
-                                  make_request_by_url(TEST_URL3).text)
+                                  make_request(TEST_URL3).text)
             assert len(test_obj.get_resources_set(tag)) == expected
 
 
@@ -135,8 +133,7 @@ def test_build_path_to_swap_in_html(url, expected):
                            'http://test.com/file/file2.png')]
                          )
 def test_build_url(url, file_path, expected):
-    test_obj = PathHandler(url)
-    assert test_obj.build_resource_url(file_path) == expected
+    assert build_resource_url(url, file_path) == expected
 
 
 def test_error_make_dir():
@@ -146,8 +143,7 @@ def test_error_make_dir():
 
 def test_error_missing_scheme():
     with pytest.raises(MissingSchemaError):
-        pathbuilder_obj = PathHandler('test-url.com')
-        pathbuilder_obj.check_url()
+        check_url('test-url.com')
 
 
 def test_error_file_not_found_error():

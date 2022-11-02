@@ -43,23 +43,3 @@ class Tags(Enum):
     IMG = ImgTag
     SCRIPT = ScriptTag
     LINK = LinkTag
-
-
-class FileSuffixes(Enum):
-    """FIle suffixes: additions for the folder name with the resources and
-    main html file extension"""
-    FOLDER_SUFFIX = '_files'
-    HTML_FILE_SUFFIX = '.html'
-
-
-class ExceptionLogMessage(Enum):
-    """Exception message for log file"""
-    CONNECTION_ERROR = 'Connection error! Error: '
-    PAGE_NOT_AVAILABLE = 'Page not Available error. Status code is: '
-    PERMISSION_DENIED = 'Can not create directory. Permission denied! Error: '
-    FILE_EXIST_ERROR = 'The directory already exists. Error: '
-    FILE_NOT_FOUND = 'No such directory. Error: '
-    IMAGE_DOWNLOAD_ERROR = 'Downloading Image Error. Image url: '
-    TEXT_DOWNLOAD_ERROR = 'Text Data Downloading Error.Resource url: '
-    MISSING_SCHEMA = 'Missing scheme! url: '
-    INVALID_URL = 'Invalid URL: '

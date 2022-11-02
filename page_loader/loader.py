@@ -1,10 +1,9 @@
 import os
 from .log_config import logger
-from page_loader.core.downloader import Downloader, make_request_by_url
-from page_loader.core.url_handling import PathHandler
-from page_loader.core.dataclasses import FileSuffixes, ExceptionLogMessage
-from page_loader.exceptions import DirectoryCreationError, \
-    PageNotAvailableError
+from page_loader.core import exception_messages
+from page_loader.core.downloader import Downloader, make_request
+from page_loader.core.url_handling import check_url, format_webpage_url
+from page_loader.exceptions import DirectoryCreationError
 
 
 def download(url: str, path_to_save_directory=os.getcwd()) -> str:
@@ -15,15 +14,11 @@ def download(url: str, path_to_save_directory=os.getcwd()) -> str:
     :param path_to_save_directory: str
     :return: str
     """
-    PathHandler(url).check_url()
-    webpage_data = make_request_by_url(url,
-                                       ExceptionLogMessage.PAGE_NOT_AVAILABLE,
-                                       PageNotAvailableError)
+    check_url(url)
+    webpage_data = make_request(url)
 
     path_to_resources_folder, path_to_main_html = \
-        _get_path_to_main_resources(FileSuffixes.FOLDER_SUFFIX,
-                                    FileSuffixes.HTML_FILE_SUFFIX,
-                                    path_to_save_directory, url)
+        _get_path_to_main_resources(url, path_to_save_directory)
 
     _make_dir(path_to_resources_folder)
 
@@ -31,32 +26,31 @@ def download(url: str, path_to_save_directory=os.getcwd()) -> str:
                             path_to_resources_folder, path_to_main_html,
                             webpage_data.text)
     downloader.download_all()
-    return downloader.path_to_main_html
+    return path_to_main_html
 
 
 def _make_dir(path: str) -> None:
     try:
         os.mkdir(path)
     except PermissionError as e:
-        logger.error(f'{ExceptionLogMessage.PERMISSION_DENIED.value}{e}')
+        logger.error(f'{exception_messages.PERMISSION_DENIED}{e}')
         raise DirectoryCreationError
     except FileExistsError as e:
-        logger.error(f'{ExceptionLogMessage.FILE_EXIST_ERROR.value}{e}')
+        logger.error(f'{exception_messages.FILE_EXIST_ERROR}{e}')
         raise DirectoryCreationError
     except FileNotFoundError as e:
-        logger.error(f'{ExceptionLogMessage.FILE_NOT_FOUND.value}{e}')
+        logger.error(f'{exception_messages.FILE_NOT_FOUND}{e}')
         raise DirectoryCreationError
 
 
-def _get_path_to_main_resources(folder_suffix: FileSuffixes,
-                                html_suffix: FileSuffixes,
-                                path_to_save_directory: str,
-                                url: str) -> tuple[str, str]:
+def _get_path_to_main_resources(url: str, path_to_save_directory: str,
+                                folder_suffix='_files',
+                                html_suffix='.html') -> tuple[str, str]:
 
-    format_webpage_url = PathHandler(url).format_webpage_url()
+    _format_webpage_url = format_webpage_url(url)
     path_to_resources_folder = os.path.join(
         path_to_save_directory,
-        format_webpage_url) + folder_suffix.value
+        _format_webpage_url) + folder_suffix
     path_to_main_html = os.path.join(path_to_save_directory,
-                                     format_webpage_url) + html_suffix.value
+                                     _format_webpage_url) + html_suffix
     return path_to_resources_folder, path_to_main_html

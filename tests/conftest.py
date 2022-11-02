@@ -1,35 +1,21 @@
 import os
 import pytest
 from bs4 import BeautifulSoup
-from page_loader.core.downloader import Downloader
+from page_loader.core.downloader import get_text_data
 import requests_mock
-import tempfile
-from page_loader.loader import make_request_by_url
+from tests.test_page_loader import read_bytes_data, read_text_data
+
 PATH = 'tests/fixtures'
 TEST_URL = 'http://test.com'
 TEST_FILE_PATH = 'test/file/path.png'
 
 
-def read_bytes_data(path):
-    with open(path, 'rb') as f:
-        file = f.read()
-    return file
-
-
-def read_text_data(path):
-    with open(path) as f:
-        file = f.read()
-    return file
-
 
 @pytest.fixture()
 def get_url_data_fixture():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        with requests_mock.Mocker() as mock:
-            mock.get(TEST_URL, text='test')
-            test_obj = Downloader(TEST_URL, tmp_dir, tmp_dir, tmp_dir,
-                                  make_request_by_url(TEST_URL).text)
-            return test_obj.get_text_data(TEST_URL)
+    with requests_mock.Mocker() as mock:
+        mock.get(TEST_URL, text='test')
+        return get_text_data(TEST_URL)
 
 
 @pytest.fixture()
@@ -45,10 +31,8 @@ def html_fixture2():
 
 
 @pytest.fixture()
-def test_bs_object():
-    path = os.path.join(PATH, 'fixture_page.html')
-    file = read_text_data(path)
-    pars_file = BeautifulSoup(file, 'html.parser')
+def test_bs_object(html_fixture):
+    pars_file = BeautifulSoup(html_fixture, 'html.parser')
     img_resources_set = pars_file.find_all('img', {'src': True})
     link_resource_set = pars_file.find_all('link', {'href': True})
     script_resource_set = pars_file.find_all('script', {'src': True})
