@@ -10,7 +10,6 @@ TEST_URL = 'http://test.com'
 TEST_FILE_PATH = 'test/file/path.png'
 
 
-
 @pytest.fixture()
 def get_url_data_fixture():
     with requests_mock.Mocker() as mock:
