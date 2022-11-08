@@ -1,9 +1,12 @@
 import os
-from .log_config import logger
-from page_loader.core import exception_messages
-from page_loader.core.downloader import Downloader, make_request
-from page_loader.core.url_handling import check_url, format_webpage_url
-from page_loader.exceptions import DirectoryCreationError
+from page_loader.lib.logs.log_config import logger
+from page_loader.lib import exception_messages as em
+from page_loader.lib.downloader import Downloader, make_request
+from page_loader.lib.url_handling import check_url, format_webpage_url
+from page_loader.lib.exceptions import DirectoryCreationError
+
+FOLDER_SUFFIX = '_files'
+HTML_SUFFIX = '.html'
 
 
 def download(url: str, path_to_save_directory=os.getcwd()) -> str:
@@ -33,24 +36,24 @@ def _make_dir(path: str) -> None:
     try:
         os.mkdir(path)
     except PermissionError as e:
-        logger.error(f'{exception_messages.PERMISSION_DENIED}{e}')
-        raise DirectoryCreationError
+        logger.error(f'{em.PERMISSION_DENIED}{e}')
+        raise DirectoryCreationError(em.USER_PERMISSION_DENIED) from e
     except FileExistsError as e:
-        logger.error(f'{exception_messages.FILE_EXIST_ERROR}{e}')
-        raise DirectoryCreationError
+        logger.error(f'{em.FILE_EXIST_ERROR}{e}')
+        raise DirectoryCreationError(em.USER_DIRECTORY_EXIST) from e
     except FileNotFoundError as e:
-        logger.error(f'{exception_messages.FILE_NOT_FOUND}{e}')
-        raise DirectoryCreationError
+        logger.error(f'{em.FILE_NOT_FOUND}{e}')
+        raise DirectoryCreationError(em.DIRECTORY_CREATE_ERROR) from e
 
 
-def _get_path_to_main_resources(url: str, path_to_save_directory: str,
-                                folder_suffix='_files',
-                                html_suffix='.html') -> tuple[str, str]:
+def _get_path_to_main_resources(url: str,
+                                path_to_save_directory: str) \
+        -> tuple[str, str]:
 
-    _format_webpage_url = format_webpage_url(url)
+    _formated_webpage_url = format_webpage_url(url)
     path_to_resources_folder = os.path.join(
         path_to_save_directory,
-        _format_webpage_url) + folder_suffix
+        _formated_webpage_url) + FOLDER_SUFFIX
     path_to_main_html = os.path.join(path_to_save_directory,
-                                     _format_webpage_url) + html_suffix
+                                     _formated_webpage_url) + HTML_SUFFIX
     return path_to_resources_folder, path_to_main_html

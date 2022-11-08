@@ -1,17 +1,21 @@
+import stat
+
 import pytest
 import requests_mock
 import pathlib
 import tempfile
 import requests
 import os
-from page_loader.exceptions import DirectoryCreationError, MissingSchemaError
-from page_loader.core.downloader import Downloader, _resources_validator, \
-    _change_path_in_html, _save_resources, get_bytes_data
-from page_loader.core.file_handling import FileWorker
-from page_loader.core.url_handling import PathHandler, build_resource_url, \
+from page_loader.lib.exceptions import DirectoryCreationError, \
+    MissingSchemaError
+from page_loader.lib.downloader import Downloader, _resources_validator, \
+    _change_path_in_html, _save_resources, get_bytes_data, \
+    _check_image_extension, _is_true_domain
+from page_loader.lib.file_handling import FileWorker
+from page_loader.lib.url_handling import PathHandler, build_resource_url, \
     check_url
 from page_loader.loader import download, _make_dir
-from page_loader.core.dataclasses import RecordingData, ImgTag, ScriptTag, \
+from page_loader.lib.dataclasses import RecordingData, ImgTag, ScriptTag, \
     LinkTag
 from page_loader.loader import make_request
 
@@ -149,3 +153,38 @@ def test_error_missing_scheme():
 def test_error_file_not_found_error():
     with pytest.raises(DirectoryCreationError):
         _make_dir('/Users/a.cheremushkin/hello/test')
+
+
+@pytest.mark.parametrize('path, expected',
+                         [('test-file.jpg', True),
+                          ('test-file2.html', False),
+                          ('test-file3.css', False),
+                          ('test-file4.png', True)
+                          ])
+def test_check_image_extension(path, expected):
+    assert _check_image_extension(path) is expected
+
+
+@pytest.mark.parametrize('resource_link, webpage_url, expected',
+                         [('http://test.com/test/path.png', TEST_URL, True),
+                          ('test.com/test/path.css', TEST_URL, True),
+                          ('https://test-url3.com', TEST_URL2, False),
+                          ])
+def test_is_true_domain2(resource_link, webpage_url, expected):
+    assert _is_true_domain(resource_link, webpage_url) is expected
+
+
+def test_raise_dowload():
+    with tempfile.TemporaryDirectory() as tmp:
+        with pytest.raises(MissingSchemaError):
+            download('url-without-scheme.ru', tmp)
+
+
+def test_raise_file_worker():
+    with tempfile.TemporaryDirectory() as tmp:
+        path_to_save = os.path.join(tmp, 'test-file.txt')
+        data = 'test-data'
+        FileWorker(RecordingData(
+            data=data,
+            path_to_save_data=path_to_save)).save_text_data()
+        assert os.path.isfile(path_to_save)

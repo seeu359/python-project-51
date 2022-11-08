@@ -21,3 +21,7 @@ class InvalidUrl(Exception):
 
 class ResourceDownloadError(Exception):
     pass
+
+
+class FileRecordingError(Exception):
+    pass

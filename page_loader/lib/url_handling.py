@@ -2,10 +2,10 @@ import furl
 import re
 import os
 import pathlib
-from page_loader.log_config import logger
+from page_loader.lib.logs.log_config import logger
 from urllib.parse import urlparse, urljoin
-from page_loader.exceptions import MissingSchemaError, InvalidUrl
-from page_loader.core import exception_messages
+from page_loader.lib.exceptions import MissingSchemaError, InvalidUrl
+from page_loader.lib import exception_messages
 
 
 FORMAT_FILE = '.html'

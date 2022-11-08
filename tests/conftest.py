@@ -1,7 +1,7 @@
 import os
 import pytest
 from bs4 import BeautifulSoup
-from page_loader.core.downloader import get_text_data
+from page_loader.lib.downloader import get_text_data
 import requests_mock
 from tests.test_page_loader import read_bytes_data, read_text_data
 

@@ -1,5 +1,7 @@
+USER_DIRECTORY_EXIST = 'A directory with this name already exists!'
 DOWNLOAD_SUCCESS = 'Page was downloaded!'
 DIRECTORY_CREATE_ERROR = 'Invalid path! Cannot create file in this path!'
+FILE_SAVING_ERORR = 'An error occurred while saving local resources'
 USER_PERMISSION_DENIED = 'No write access to this folder!'
 FAILED_TO_LOAD = 'Failed to load page! The page at this address is unavailable'
 DATA_DOWNLOAD_ERROR = 'An error occurred while loading local resources!'

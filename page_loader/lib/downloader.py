@@ -1,16 +1,16 @@
 import requests
 import os
-from page_loader.log_config import logger
+from page_loader.lib.logs.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
-from page_loader.core.file_handling import FileWorker
-from page_loader.core.url_handling import build_resource_url, PathHandler
-from page_loader.core.dataclasses import RecordingData, ImgTag, ScriptTag, \
+from page_loader.lib.file_handling import FileWorker
+from page_loader.lib.url_handling import build_resource_url, PathHandler
+from page_loader.lib.dataclasses import RecordingData, ImgTag, ScriptTag, \
     LinkTag, Tags
-from page_loader.core import exception_messages
+from page_loader.lib import exception_messages
 from typing import Union, Iterable
 from progress.bar import ShadyBar
-from page_loader.exceptions import ResourceDownloadError, HttpRequestError
+from page_loader.lib.exceptions import ResourceDownloadError, HttpRequestError
 from requests.exceptions import ConnectionError, InvalidSchema, \
     RequestException, HTTPError, URLRequired, TooManyRedirects, Timeout
 

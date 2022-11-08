@@ -6,4 +6,4 @@ dist/
 test-coverage-tool
 __pycache__/
 .pytest_cache
-logs.log
+page_loader/lib/logs/logs.log

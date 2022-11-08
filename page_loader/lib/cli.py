@@ -1,6 +1,6 @@
 import argparse
 import os
-from page_loader.core.dataclasses import ArgumentParser
+from page_loader.lib.dataclasses import ArgumentParser
 from typing import Literal
 
 
