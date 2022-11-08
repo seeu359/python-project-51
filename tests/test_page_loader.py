@@ -1,5 +1,3 @@
-import stat
-
 import pytest
 import requests_mock
 import pathlib
