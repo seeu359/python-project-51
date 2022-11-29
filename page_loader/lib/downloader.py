@@ -3,7 +3,7 @@ import os
 from page_loader.lib.logs.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
-from page_loader.lib.file_handling import FileWorker
+from page_loader.lib.file_handling import save_data
 from page_loader.lib.url_handling import build_resource_url, PathHandler
 from page_loader.lib.dataclasses import RecordingData, ImgTag, ScriptTag, \
     LinkTag, Tags
@@ -75,7 +75,7 @@ class Downloader:
             data=self.parse_data.prettify(),
             path_to_save_data=self.path_to_main_html)
 
-        FileWorker(recording_data).save_text_data()
+        save_data(recording_data, 'w')
 
 
 def make_request(url: str) \
@@ -90,7 +90,7 @@ def make_request(url: str) \
         raise HttpRequestError
 
     request_status_code = response.status_code
-    if request_status_code in (404, 500):
+    if request_status_code != 200:
         logger.error(f'{exception_messages.RESOURCE_LOAD_ERROR}'
                      f'{request_status_code}')
         raise ResourceDownloadError
@@ -165,8 +165,6 @@ def _save_resources(local_resource_path: str,
     recording_data = RecordingData(data=data,
                                    path_to_save_data=path_to_save_data)
 
-    _file_worker = FileWorker(recording_data)
-    recorder = _file_worker.save_bytes_data if \
-        extension in ('.png', '.jpeg', '.jpg', '.css') else \
-        _file_worker.save_text_data
-    recorder()
+    record_mode = 'wb' if extension in ('.png', '.jpeg', '.jpg', '.css') else \
+        'w'
+    save_data(recording_data, record_mode)

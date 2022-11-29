@@ -5,17 +5,18 @@ import tempfile
 import requests
 import os
 from page_loader.lib.exceptions import DirectoryCreationError, \
-    MissingSchemaError
+    MissingSchemaError, ResourceDownloadError, HttpRequestError
 from page_loader.lib.downloader import Downloader, _resources_validator, \
     _change_path_in_html, _save_resources, get_bytes_data, \
     _check_image_extension, _is_true_domain
-from page_loader.lib.file_handling import FileWorker
+from page_loader.lib.file_handling import save_data
 from page_loader.lib.url_handling import PathHandler, build_resource_url, \
     check_url
 from page_loader.loader import download, _make_dir
 from page_loader.lib.dataclasses import RecordingData, ImgTag, ScriptTag, \
     LinkTag
 from page_loader.loader import make_request
+
 
 TEST_URL = 'http://test.com'
 TEST_URL2 = 'https://ru.hexlet.io/courses'
@@ -60,8 +61,7 @@ def test_get_image_data(html_fixture):
             path = pathlib.Path(tmp_dir, 'test.png')
             recording_data = RecordingData(data=image_data,
                                            path_to_save_data=str(path))
-            file_worker = FileWorker(recording_data)
-            file_worker.save_bytes_data()
+            save_data(recording_data, 'wb')
             image = read_bytes_data(path)
             assert image == requests.get(TEST_URL).content
 
@@ -182,7 +182,41 @@ def test_raise_file_worker():
     with tempfile.TemporaryDirectory() as tmp:
         path_to_save = os.path.join(tmp, 'test-file.txt')
         data = 'test-data'
-        FileWorker(RecordingData(
-            data=data,
-            path_to_save_data=path_to_save)).save_text_data()
+        save_data(
+            RecordingData(
+                data=data, path_to_save_data=path_to_save),
+            'w')
         assert os.path.isfile(path_to_save)
+
+
+@pytest.mark.parametrize('status_code',
+                         [404,
+                          500,
+                          ]
+                         )
+def test_make_request_error404(status_code):
+    with pytest.raises(ResourceDownloadError):
+        with requests_mock.Mocker() as mock:
+            mock.get(TEST_URL, text='test data', status_code=status_code)
+            make_request(TEST_URL)
+
+
+def test_make_request_timeout():
+    with pytest.raises(HttpRequestError):
+        with requests_mock.Mocker() as mock:
+            mock.get(TEST_URL, exc=requests.exceptions.Timeout)
+            make_request(TEST_URL)
+
+
+@pytest.mark.parametrize('path',
+                         ['/another_test_dir',
+                          '',
+                          ]
+                         )
+def test_make_dir_permission_error(path):
+    with pytest.raises(DirectoryCreationError):
+        with tempfile.TemporaryDirectory() as tmp:
+            dir_without_rights = os.path.join(tmp, 'testdir')
+
+            os.makedirs(name=dir_without_rights, mode=0o664)
+            _make_dir(dir_without_rights + path)
