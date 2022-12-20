@@ -5,7 +5,7 @@ import pathlib
 from page_loader.lib.logs.log_config import logger
 from urllib.parse import urlparse, urljoin
 from page_loader.lib.exceptions import MissingSchemaError, InvalidUrl
-from page_loader.lib import exception_messages
+from page_loader.lib import exception_messages as em
 
 
 FORMAT_FILE = '.html'
@@ -22,9 +22,9 @@ class PathHandler:
         try:
             self.parse_url = urlparse(url)
         except ValueError as e:
-            logger.error(f'{exception_messages.INVALID_URL}{url}. '
+            logger.error(f'{em.INVALID_URL}{url}. '
                          f'{e}')
-            raise InvalidUrl
+            raise InvalidUrl(em.INVALID_URL)
 
     def build_path_to_swap_in_html(self, save_folder: str) -> str:
         if not self.extension:
@@ -35,11 +35,11 @@ class PathHandler:
                             replace_symbols_in_url) + self.extension
 
 
-def build_resource_url(url, file_path: str) -> str:
+def build_resource_url(url: str, file_path: str) -> str:
     """Build resource url for download"""
     parse_url = urlparse(url)
-    parse_img_path = urlparse(file_path)
-    if parse_img_path.scheme:
+    parse_file_path = urlparse(file_path)
+    if parse_file_path.scheme:
         return file_path
     url_body = f'{parse_url.scheme}://' \
                f'{parse_url.netloc}'
@@ -73,6 +73,6 @@ def check_url(url) -> None:
     """
     parse_url = urlparse(url)
     if not parse_url.scheme:
-        logger.error(f'{exception_messages.MISSING_SCHEMA}'
+        logger.error(f'{em.MISSING_SCHEME}'
                      f'{url}')
-        raise MissingSchemaError
+        raise MissingSchemaError(em.MISSING_SCHEME)

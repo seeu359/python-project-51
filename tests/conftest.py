@@ -1,7 +1,7 @@
 import os
 import pytest
 from bs4 import BeautifulSoup
-from page_loader.lib.downloader import get_text_data
+from page_loader.lib.downloader import _get_text_data
 import requests_mock
 from tests.test_page_loader import read_bytes_data, read_text_data
 
@@ -14,7 +14,7 @@ TEST_FILE_PATH = 'test/file/path.png'
 def get_url_data_fixture():
     with requests_mock.Mocker() as mock:
         mock.get(TEST_URL, text='test')
-        return get_text_data(TEST_URL)
+        return _get_text_data(TEST_URL)
 
 
 @pytest.fixture()
