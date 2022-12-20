@@ -7,9 +7,9 @@ import os
 from bs4 import BeautifulSoup
 from page_loader.lib.exceptions import DirectoryCreationError, \
     MissingSchemaError, ResourceDownloadError, HttpRequestError
-from page_loader.lib.downloader import _resources_validator,_save_resources, \
-    _get_bytes_data, _check_image_extension, _is_true_domain, _make_dir, \
-    _get_resources
+from page_loader.lib.downloader import _resources_validator, \
+    _save_resources, _get_bytes_data, _check_image_extension, \
+    _is_true_domain, _make_dir, _get_resources
 from page_loader.lib.file_handling import save_data
 from page_loader.lib.url_handling import PathHandler, build_resource_url, \
     check_url
