@@ -1,8 +1,8 @@
 import os
 import pytest
+import requests_mock
 from bs4 import BeautifulSoup
 from page_loader.lib.downloader import _get_text_data
-import requests_mock
 from tests.test_page_loader import read_bytes_data, read_text_data
 
 PATH = 'tests/fixtures'

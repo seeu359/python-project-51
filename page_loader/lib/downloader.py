@@ -1,6 +1,6 @@
 import requests
 import os
-from loguru import logger
+from page_loader.lib.logs.log_config import logger
 from bs4 import BeautifulSoup, ResultSet, SoupStrainer
 from urllib.parse import urlparse
 from page_loader.lib.file_handling import save_data
